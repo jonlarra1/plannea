@@ -1,0 +1,38 @@
+# Node
+node_modules/
+dist/
+
+# Rust / Tauri (also covered by src-tauri/.gitignore, kept here for safety)
+src-tauri/target/
+src-tauri/gen/
+
+# Secrets & signing material — never commit these, especially in a public repo
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.keystore
+src-tauri/keys/
+
+# Local dev / personal data — task content must never leak into the public repo
+plannea-data/
+*.local.md
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# AI assistance files — kept out of the public repo (user's choice)
+CLAUDE.md
+AGENTS.md
+handoff.md
+.claude/
+.cursor/
+.cursorrules
+.github/copilot-instructions.md
+*.plan.md
