@@ -39,6 +39,15 @@ to be later modules, not part of the core MVP.
 - [ ] Sports management: training, races… `(module)`
 - [ ] Shopping list, fully integrated into the app `(module)`
 
+## Platforms & interfaces
+- [ ] Keep `src/core/` fully platform-agnostic so multiple front-ends can sit on
+      top of the same core logic
+- [ ] TUI: a lighter terminal interface on top of the core, as an alternative to
+      the GUI `(future project)`
+- [ ] iOS app `(future project)` — feasible via Tauri v2 mobile, but needs a
+      Mac + Xcode + Apple Developer account, a responsive/touch UI, and a
+      rethink of the markdown storage/sync model (sandboxed, no agent access)
+
 ## Process and design
 - [ ] Define things gradually, step by step
 - [ ] Make a draw.io of the design

@@ -5,9 +5,15 @@ files are added, moved, or removed. Lists only files that are **not** in
 `.gitignore` (so no `node_modules/`, `dist/`, build output, or AI-assistance
 files).
 
+**Architecture diagram:** [`architecture.drawio`](architecture.drawio) — how the
+code layers fit together and how data flows. Open it in VS Code with the Draw.io
+Integration extension (`hediet.vscode-drawio`), or at
+[app.diagrams.net](https://app.diagrams.net) via *File → Open from → Device*.
+
 ```
 .
 ├── docs/
+│   ├── architecture.drawio      # editable draw.io diagram of the code architecture
 │   ├── CODING_GUIDE.md          # conventions: layer rule, TS/React rules, comments
 │   ├── FEATURES.md              # feature checklist sorted by topic
 │   └── STRUCTURE.md             # this file — the project file map

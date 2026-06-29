@@ -32,6 +32,8 @@ CLAUDE.md
 AGENTS.md
 handoff.md
 .claude/
+.agents/
+skills-lock.json
 .cursor/
 .cursorrules
 .github/copilot-instructions.md

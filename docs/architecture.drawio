@@ -1,0 +1,103 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Architecture" id="plannea-arch">
+    <mxGraphModel dx="900" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Layer labels -->
+        <mxCell id="lbl-ui" value="UI — src/components/ (UI only)" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-shell" value="Shell — src/app/" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="160" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-logic" value="Logic / Data — src/core/ + src/data/" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="290" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-native" value="Native — src-tauri/ (Rust)" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="430" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-store" value="Storage" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="550" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- UI components -->
+        <mxCell id="ui-sidebar" value="Sidebar.tsx&#10;(project list)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ui-project" value="ProjectView.tsx&#10;(days + tasks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="210" y="50" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ui-day" value="DaySectionView.tsx&#10;(one day group)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="380" y="50" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ui-task" value="TaskItem.tsx&#10;(task row)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="550" y="50" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Shell -->
+        <mxCell id="app" value="App.tsx&#10;shell — owns projects + selectedId state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="270" y="190" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Logic + Data -->
+        <mxCell id="core" value="core/&#10;frontmatter.ts, project.ts&#10;(pure logic: parse / serialize / toggle / move)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="40" y="320" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" value="data/projectsRepo.ts&#10;(ONLY file that touches the filesystem)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="400" y="320" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Native -->
+        <mxCell id="tauri" value="src-tauri (lib.rs)&#10;Tauri fs plugin — scoped to $APPDATA/projects" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="400" y="460" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Storage -->
+        <mxCell id="md" value="$APPDATA/projects/*.md&#10;(markdown = source of truth)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="430" y="580" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Edges: App <-> components -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;" edge="1" parent="1" source="app" target="ui-sidebar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;" edge="1" parent="1" source="app" target="ui-project">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;" edge="1" parent="1" source="app" target="ui-day">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="props down / events up" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;fontSize=10;" edge="1" parent="1" source="app" target="ui-task">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- App -> core -->
+        <mxCell id="e5" value="toggle / move" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;fontSize=10;" edge="1" parent="1" source="app" target="core">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- App -> repo -->
+        <mxCell id="e6" value="load / save" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;fontSize=10;" edge="1" parent="1" source="app" target="repo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- repo -> core -->
+        <mxCell id="e7" value="parse / serialize" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;fontSize=10;" edge="1" parent="1" source="repo" target="core">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- repo -> tauri -->
+        <mxCell id="e8" value="read / write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;fontSize=10;" edge="1" parent="1" source="repo" target="tauri">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- tauri -> md -->
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="tauri" target="md">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
