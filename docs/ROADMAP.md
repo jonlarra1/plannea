@@ -37,15 +37,13 @@ portability/backup. Schema inspired by Planify. This **supersedes** the old
 - [x] Design the schema — DONE, see `docs/STORAGE.md`. SQLite with projects, sections (core, from the start), tasks (subtasks via parent_id), stable TEXT ids, separate importance + urgency (0–3), both scheduled_for + due_at, completed_at, explicit order, description as a markdown field; labels designed, UI later.
 - [x] Set up SQLite in Tauri with migrations (tauri-plugin-sql + @tauri-apps/plugin-sql; migration in src-tauri/migrations/0001_init.sql, registered in lib.rs). VERIFIED end-to-end: the app creates ~/.config/com.plannea.app/plannea.db with all tables.
 - [x] Build the data layer (the hook): src/core/types.ts (domain model) + src/data/db.ts (connection) + src/data/repo.ts (typed CRUD/query for projects, sections, tasks). VERIFIED: createProject/createTask/listProjects/listTasks write+read real rows. UI still on the old markdown path until Phase 2 swaps it over.
-- [ ] Pin markdown's role: descriptions/notes as markdown text; `![[id]]` links
-      resolved via the DB; define the export format.
 
 ### Phase 2 — Finish the core CRUD slice
-- [ ] Add core functions + UI for: create project, add task, rename task, delete
-      task, delete/archive project, move task between days.
+- [ ] Add core functions + UI for: create project, add task, rename task, delete task, delete/archive project, move task between days.
+- [ ] Structure the GUI as a front-end *over the data layer*, not hard-wired into it — so the TUI (and other front-ends) can reuse the same `repo.ts` later. The data layer already enforces this (it's UI-agnostic); just keep components calling `repo` functions, never SQL.
 
 ### Phase 3 — Core feature depth (from FEATURES "Core")
-- [ ] Subtasks, urgency/importance, loose notes, lists, per-task descriptions.
+- [ ] Subtasks, urgency/importance, loose notes, lists, per-task descriptions (descriptions render markdown and support `![[id]]` links resolved via the DB).
 - [ ] "Remind me to delete/reset a stale task" button (uses the
       `tauri-app-notification` skill).
 - [ ] Done tasks stay shown as checked only for their completion day; after that
@@ -63,9 +61,9 @@ portability/backup. Schema inspired by Planify. This **supersedes** the old
       the data layer; adds no separate storage.
 - [ ] Calendar sync, weather, habits/streaks, sport, shopping (streaks/search are
       simple DB queries thanks to the Phase 1 schema).
-- [ ] Cross-cutting: zoom, window-state (`tauri-app-window-state`), global
-      shortcuts (`tauri-app-global-shortcut`), widgets, and the TUI / iOS
-      (`tauri-mobile`) front-ends.
+- [ ] Markdown export: dump the DB to `.md` files for backup/portability/agent-reading (define the format).
+- [ ] Choosable front-end: first-run selector to pick the lighter TUI or the full GUI (switchable later). Both are front-end layers over the same data-layer hook — design-level commitment, not just a feature.
+- [ ] Cross-cutting: zoom, window-state (`tauri-app-window-state`), global shortcuts (`tauri-app-global-shortcut`), widgets, and the TUI / iOS (`tauri-mobile`) front-ends.
 
 ## The decision that matters now
 Phases 2-5 all sit on top of the task data model (Phase 1). Adding create/edit UI

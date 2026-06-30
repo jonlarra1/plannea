@@ -44,13 +44,11 @@ to be later modules, not part of the core MVP.
 - [ ] Shopping list, fully integrated into the app `(module)`
 
 ## Platforms & interfaces
-- [ ] Keep `src/core/` fully platform-agnostic so multiple front-ends can sit on
-      top of the same core logic
-- [ ] TUI: a lighter terminal interface on top of the core, as an alternative to
-      the GUI `(future project)`
-- [ ] iOS app `(future project)` — feasible via Tauri v2 mobile, but needs a
-      Mac + Xcode + Apple Developer account, a responsive/touch UI, and a
-      rethink of the markdown storage/sync model (sandboxed, no agent access)
+- [ ] The front-end is a CHOOSABLE MODULE: on first run you pick the lighter TUI or the full GUI, and you can switch later. This must be part of the design from the start — the core + data layer stay UI-agnostic so any front-end sits on top of them.
+- [ ] Keep `src/core/` and the data layer fully UI-agnostic (the shared "hook") so multiple front-ends (GUI, TUI, mobile) all use the same logic.
+- [ ] GUI front-end: the full desktop window (the current React UI).
+- [ ] TUI front-end: a lighter terminal interface on top of the same data layer.
+- [ ] iOS app `(future project)` — feasible via Tauri v2 mobile, but needs a Mac + Xcode + Apple Developer account, a responsive/touch UI, and a sync rethink (sandboxed; agent access via MCP, not raw files).
 
 ## Process and design
 - [ ] Define things gradually, step by step
