@@ -29,10 +29,13 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   ├── Sidebar.tsx          # project list / selector
 │   │   └── TaskItem.tsx         # one task row (checkbox, up/down)
 │   ├── core/                    # pure logic, no React/Tauri
-│   │   ├── frontmatter.ts       # YAML frontmatter split/join
-│   │   └── project.ts           # types + parse/serialize/toggle/move
-│   ├── data/
-│   │   └── projectsRepo.ts      # ONLY file that touches the filesystem
+│   │   ├── frontmatter.ts       # YAML frontmatter split/join (legacy markdown path)
+│   │   ├── project.ts           # legacy markdown types + parse/serialize/toggle/move
+│   │   └── types.ts             # domain model (Project, Section, Task) for the DB
+│   ├── data/                    # data layer — only place that knows SQL/fs
+│   │   ├── db.ts                # opens the shared SQLite connection
+│   │   ├── repo.ts              # typed CRUD/query functions (the data-layer hook)
+│   │   └── projectsRepo.ts      # legacy markdown repo (to be retired in Phase 2)
 │   ├── modules/
 │   │   └── README.md            # placeholder for future feature modules
 │   ├── main.tsx                 # React entry point
@@ -42,8 +45,10 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   ├── capabilities/
 │   │   └── default.json         # fs scoped to $APPDATA/projects
 │   ├── icons/                   # generated app icons (16 boilerplate files)
+│   ├── migrations/              # SQL schema migrations (applied on startup)
+│   │   └── 0001_init.sql        # initial schema (projects, sections, tasks, labels)
 │   ├── src/
-│   │   ├── lib.rs               # fs plugin registered here
+│   │   ├── lib.rs               # registers fs, opener, and sql (with migrations)
 │   │   └── main.rs              # Rust entry point
 │   ├── build.rs
 │   ├── Cargo.toml

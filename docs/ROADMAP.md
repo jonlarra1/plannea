@@ -35,10 +35,8 @@ that plugs into this same data layer; optional markdown **export** for
 portability/backup. Schema inspired by Planify. This **supersedes** the old
 "markdown files are the source of truth" decision.
 - [x] Design the schema — DONE, see `docs/STORAGE.md`. SQLite with projects, sections (core, from the start), tasks (subtasks via parent_id), stable TEXT ids, separate importance + urgency (0–3), both scheduled_for + due_at, completed_at, explicit order, description as a markdown field; labels designed, UI later.
-- [ ] Set up SQLite in Tauri with migrations (use the `tauri-app-sql` skill).
-- [ ] Build the data layer that replaces `projectsRepo`: typed CRUD + query
-      functions. Keep them UI-agnostic — this is the clean **hook** the UI uses
-      now and the later MCP module will reuse without changes.
+- [x] Set up SQLite in Tauri with migrations (tauri-plugin-sql + @tauri-apps/plugin-sql; migration in src-tauri/migrations/0001_init.sql, registered in lib.rs). VERIFIED end-to-end: the app creates ~/.config/com.plannea.app/plannea.db with all tables.
+- [x] Build the data layer (the hook): src/core/types.ts (domain model) + src/data/db.ts (connection) + src/data/repo.ts (typed CRUD/query for projects, sections, tasks). VERIFIED: createProject/createTask/listProjects/listTasks write+read real rows. UI still on the old markdown path until Phase 2 swaps it over.
 - [ ] Pin markdown's role: descriptions/notes as markdown text; `![[id]]` links
       resolved via the DB; define the export format.
 
