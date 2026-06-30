@@ -17,6 +17,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   ├── CODING_GUIDE.md          # conventions: layer rule, TS/React rules, comments
 │   ├── FEATURES.md              # feature checklist sorted by topic
 │   ├── ROADMAP.md               # step-by-step, dependency-ordered build plan
+│   ├── STORAGE.md               # data architecture + SQLite schema reference
 │   └── STRUCTURE.md             # this file — the project file map
 ├── public/                      # static assets (tauri.svg, vite.svg)
 ├── src/

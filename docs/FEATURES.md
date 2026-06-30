@@ -8,11 +8,15 @@ to be later modules, not part of the core MVP.
 - [ ] Sections for different projects / internal sections
 - [ ] Execution order of tasks within a day
 - [ ] Subtasks nested inside other tasks
+- [ ] Each task can have a longer description / body, beyond its one-line title
 - [ ] Urgency / importance levels on tasks
 - [ ] Loose notes (random reminders)
 - [ ] Lists (markdown format)
 - [ ] After a task has been assigned for some time, notify to delete or reset it
       (with a button)
+- [ ] Done tasks stay shown as checked only for the day they were completed;
+      after that day they are auto-archived into a separate "archived" list
+      within the same project
 
 ## Markdown and agent integration
 - [ ] Everything in markdown format

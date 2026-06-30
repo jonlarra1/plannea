@@ -21,38 +21,53 @@ and architecture diagram.
 ## Plan, in order
 
 ### Phase 0 — Verify the foundation (do first, tiny)
-- [ ] Live click-test: run the app, toggle a task, confirm the `.md` file changes
+- [x] Live click-test: run the app, toggle a task, confirm the `.md` file changes
       on disk (still-pending verification).
-- [ ] Confirm the round-trip is safe on a file that has notes / blank lines —
-      this exposes the lossy-parse problem before we build on it.
+- [x] Round-trip checked against the real `parseProject`/`serializeProject`:
+      confirmed LOSSY — `note:` lines, indented subtasks, and free text are
+      dropped. This (plus the scaling needs) drove the storage decision below.
 
-### Phase 1 — Decide the data model (unblocks most features)
-- [ ] Decide how a task is represented in markdown once it needs an ID,
-      urgency/importance, subtasks, and notes. Options: pure markdown
-      (indentation for subtasks, inline tags for priority) vs. a small per-task
-      metadata block.
-- [ ] Make parse <-> serialize loss-less (preserve content it doesn't
-      understand) so saving never destroys user/agent edits.
+### Phase 1 — Storage foundation: SQLite + markdown for notes (DECIDED 2026-06-30)
+Decision (Option 1): the task **structure** lives in a **SQLite database = source
+of truth**; **free text** (task descriptions, project notes) is **markdown**
+stored per item; **agent access** comes **later as its own MCP module** (Phase 5)
+that plugs into this same data layer; optional markdown **export** for
+portability/backup. Schema inspired by Planify. This **supersedes** the old
+"markdown files are the source of truth" decision.
+- [x] Design the schema — DONE, see `docs/STORAGE.md`. SQLite with projects, sections (core, from the start), tasks (subtasks via parent_id), stable TEXT ids, separate importance + urgency (0–3), both scheduled_for + due_at, completed_at, explicit order, description as a markdown field; labels designed, UI later.
+- [ ] Set up SQLite in Tauri with migrations (use the `tauri-app-sql` skill).
+- [ ] Build the data layer that replaces `projectsRepo`: typed CRUD + query
+      functions. Keep them UI-agnostic — this is the clean **hook** the UI uses
+      now and the later MCP module will reuse without changes.
+- [ ] Pin markdown's role: descriptions/notes as markdown text; `![[id]]` links
+      resolved via the DB; define the export format.
 
 ### Phase 2 — Finish the core CRUD slice
 - [ ] Add core functions + UI for: create project, add task, rename task, delete
       task, delete/archive project, move task between days.
 
 ### Phase 3 — Core feature depth (from FEATURES "Core")
-- [ ] Subtasks, urgency/importance, loose notes, lists.
+- [ ] Subtasks, urgency/importance, loose notes, lists, per-task descriptions.
 - [ ] "Remind me to delete/reset a stale task" button (uses the
       `tauri-app-notification` skill).
+- [ ] Done tasks stay shown as checked only for their completion day; after that
+      day, auto-archive them into a separate "archived" list within the project.
+      Needs a per-task completion date — depends on the Phase 1 data-model
+      decision.
 
 ### Phase 4 — Establish the module system
 - [ ] Build the `src/modules/` registration pattern, with pomodoro as the first
       module (self-contained, no data-model coupling — safest first module).
 
 ### Phase 5 — Later modules & platform (each its own slice)
-- [ ] SQLite index (`tauri-app-sql`) when streaks/search need speed.
-- [ ] Calendar sync, weather, habits/streaks, sport, shopping.
+- [ ] MCP server module (agent access): expose the Phase 1 data-layer hook as
+      tools (create/complete/move tasks, set priority, create projects…). Reuses
+      the data layer; adds no separate storage.
+- [ ] Calendar sync, weather, habits/streaks, sport, shopping (streaks/search are
+      simple DB queries thanks to the Phase 1 schema).
 - [ ] Cross-cutting: zoom, window-state (`tauri-app-window-state`), global
-      shortcuts (`tauri-app-global-shortcut`), widgets, agent/MCP access, and the
-      TUI / iOS (`tauri-mobile`) front-ends.
+      shortcuts (`tauri-app-global-shortcut`), widgets, and the TUI / iOS
+      (`tauri-mobile`) front-ends.
 
 ## The decision that matters now
 Phases 2-5 all sit on top of the task data model (Phase 1). Adding create/edit UI
