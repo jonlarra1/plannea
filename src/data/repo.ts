@@ -11,6 +11,15 @@ const nowIso = (): string => new Date().toISOString();
 const fromBool = (n: number): boolean => n === 1;
 const toBool = (b: boolean): number => (b ? 1 : 0);
 
+// importance/urgency are integer dials 0..3 (see docs/STORAGE.md). The GUI
+// offers them as a selector, so an invalid value reaching this layer means a
+// bug in calling code — refuse loudly instead of storing garbage.
+function assertPriorityLevel(name: "importance" | "urgency", value: number): void {
+  if (!Number.isInteger(value) || value < 0 || value > 3) {
+    throw new Error(`${name} must be an integer from 0 to 3, got ${value}`);
+  }
+}
+
 // next position at the end of a group (scopeCol IS scopeVal is null-safe)
 async function nextPosition(
   table: "projects" | "sections" | "tasks",
@@ -262,6 +271,8 @@ export async function createTask(input: {
   importance?: number;
   urgency?: number;
 }): Promise<Task> {
+  assertPriorityLevel("importance", input.importance ?? 0);
+  assertPriorityLevel("urgency", input.urgency ?? 0);
   const db = await getDb();
   const ts = nowIso();
   const task: Task = {
@@ -341,6 +352,8 @@ export async function setTaskPriority(
   importance: number,
   urgency: number,
 ): Promise<void> {
+  assertPriorityLevel("importance", importance);
+  assertPriorityLevel("urgency", urgency);
   const db = await getDb();
   await db.execute(
     "UPDATE tasks SET importance = $1, urgency = $2, updated_at = $3 WHERE id = $4",

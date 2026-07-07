@@ -98,7 +98,7 @@ CREATE INDEX idx_projects_parent  ON projects(parent_id);
 
 `parent_id` does double duty: it nests projects under projects, and subtasks under tasks.
 
-`importance` and `urgency` are two separate 0–3 levels (Eisenhower-style), not one combined priority.
+`importance` and `urgency` are two separate 0–3 levels (Eisenhower-style), not one combined priority. The data layer rejects values outside integer 0–3 (decided 2026-07-07); the GUI presents them as a selector, so this guard exists to catch bugs in calling code, not user typos.
 
 `scheduled_for` is the day a task appears under (replaces the old `## day` headings); `due_at` is a separate optional deadline. A task can have one, both, or neither.
 

@@ -7,12 +7,18 @@ import {
   createSection,
   createTask,
   deleteProject,
+  deleteTask,
   listCompletedProjects,
   listProjects,
   listSections,
   listTasks,
   renameProject,
+  renameTask,
   reopenProject,
+  setTaskDescription,
+  setTaskPriority,
+  setTaskSchedule,
+  setTaskStatus,
 } from "../src/data/repo";
 import { openMemoryDb } from "./helpers/memoryDb";
 
@@ -114,5 +120,139 @@ describe("projects", () => {
     expect(await listTasks(parent.id)).toEqual([]);
     expect(await listTasks(child.id)).toEqual([]);
     expect(await listSections(parent.id)).toEqual([]);
+  });
+});
+
+describe("tasks", () => {
+  let projectId: string;
+
+  beforeEach(async () => {
+    projectId = (await createProject({ name: "Test project" })).id;
+  });
+
+  it("a fresh task starts clean: open, zero priority, no dates, at the end of the list", async () => {
+    const first = await createTask({ projectId, title: "First" });
+    const second = await createTask({ projectId, title: "Second" });
+
+    expect(first.status).toBe("open");
+    expect(first.importance).toBe(0);
+    expect(first.urgency).toBe(0);
+    expect(first.scheduledFor).toBeNull();
+    expect(first.dueAt).toBeNull();
+    expect(first.completedAt).toBeNull();
+    expect(first.isArchived).toBe(false);
+    expect(first.position).toBe(0);
+    expect(second.position).toBe(1);
+
+    const tasks = await listTasks(projectId);
+    expect(tasks.map((t) => t.title)).toEqual(["First", "Second"]);
+  });
+
+  it("checking a task done records the moment", async () => {
+    const task = await createTask({ projectId, title: "Do it" });
+
+    await setTaskStatus(task.id, "done");
+
+    const [reloaded] = await listTasks(projectId);
+    expect(reloaded.status).toBe("done");
+    expect(reloaded.completedAt).toBeTruthy();
+  });
+
+  it("un-checking a task forgets it was ever completed", async () => {
+    const task = await createTask({ projectId, title: "Oops, mis-click" });
+    await setTaskStatus(task.id, "done");
+
+    await setTaskStatus(task.id, "open");
+
+    const [reloaded] = await listTasks(projectId);
+    expect(reloaded.status).toBe("open");
+    expect(reloaded.completedAt).toBeNull();
+  });
+
+  it("renaming changes only the title", async () => {
+    const task = await createTask({
+      projectId,
+      title: "Old title",
+      description: "keep me",
+      scheduledFor: "2026-07-08",
+    });
+
+    await renameTask(task.id, "New title");
+
+    const [reloaded] = await listTasks(projectId);
+    expect(reloaded.title).toBe("New title");
+    expect(reloaded.description).toBe("keep me");
+    expect(reloaded.scheduledFor).toBe("2026-07-08");
+    expect(reloaded.status).toBe("open");
+    expect(reloaded.createdAt).toBe(task.createdAt);
+  });
+
+  it("the description can be added, changed, and removed", async () => {
+    const task = await createTask({ projectId, title: "T" });
+
+    await setTaskDescription(task.id, "some **markdown** notes");
+    expect((await listTasks(projectId))[0].description).toBe("some **markdown** notes");
+
+    await setTaskDescription(task.id, "changed");
+    expect((await listTasks(projectId))[0].description).toBe("changed");
+
+    await setTaskDescription(task.id, null);
+    expect((await listTasks(projectId))[0].description).toBeNull();
+  });
+
+  it("importance and urgency are two separate 0–3 dials", async () => {
+    const task = await createTask({ projectId, title: "T" });
+
+    await setTaskPriority(task.id, 3, 1);
+
+    const [reloaded] = await listTasks(projectId);
+    expect(reloaded.importance).toBe(3);
+    expect(reloaded.urgency).toBe(1);
+  });
+
+  it("rejects priority values outside 0–3 — garbage never enters the database", async () => {
+    const task = await createTask({ projectId, title: "T" });
+
+    await expect(setTaskPriority(task.id, 4, 0)).rejects.toThrow();
+    await expect(setTaskPriority(task.id, 0, -1)).rejects.toThrow();
+    await expect(setTaskPriority(task.id, 1.5, 0)).rejects.toThrow();
+    await expect(createTask({ projectId, title: "Bad", importance: 7 })).rejects.toThrow();
+
+    // and the failed attempts changed nothing
+    const [reloaded] = await listTasks(projectId);
+    expect(reloaded.importance).toBe(0);
+    expect(reloaded.urgency).toBe(0);
+  });
+
+  it("planned day and deadline are independent and each can be set or cleared", async () => {
+    const task = await createTask({ projectId, title: "T" });
+
+    await setTaskSchedule(task.id, "2026-07-08", "2026-07-10T12:00:00Z");
+    let [reloaded] = await listTasks(projectId);
+    expect(reloaded.scheduledFor).toBe("2026-07-08");
+    expect(reloaded.dueAt).toBe("2026-07-10T12:00:00Z");
+
+    // deadline only, no planned day
+    await setTaskSchedule(task.id, null, "2026-07-10T12:00:00Z");
+    [reloaded] = await listTasks(projectId);
+    expect(reloaded.scheduledFor).toBeNull();
+    expect(reloaded.dueAt).toBe("2026-07-10T12:00:00Z");
+
+    // both cleared
+    await setTaskSchedule(task.id, null, null);
+    [reloaded] = await listTasks(projectId);
+    expect(reloaded.scheduledFor).toBeNull();
+    expect(reloaded.dueAt).toBeNull();
+  });
+
+  it("deleting a task destroys it and its subtasks, leaving others untouched", async () => {
+    const parent = await createTask({ projectId, title: "Parent" });
+    await createTask({ projectId, title: "Subtask", parentId: parent.id });
+    const other = await createTask({ projectId, title: "Unrelated" });
+
+    await deleteTask(parent.id);
+
+    const remaining = await listTasks(projectId);
+    expect(remaining.map((t) => t.id)).toEqual([other.id]);
   });
 });

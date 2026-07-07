@@ -58,7 +58,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 ├── tests/                       # Vitest tests (run with `npm test`)
 │   ├── helpers/
 │   │   └── memoryDb.ts          # in-memory SQLite DbClient running the real migration
-│   ├── repo.test.ts             # data-layer tests (2.1 smoke test; 2.2 adds the full specs)
+│   ├── repo.test.ts             # data-layer behavior specs (roadmap 2.2: projects + tasks)
 │   └── tsconfig.json            # editor types for the tests folder (Node APIs)
 ├── .vscode/
 │   └── extensions.json
