@@ -35,6 +35,7 @@ interface ProjectRow {
   color: string | null;
   emoji: string | null;
   is_archived: number;
+  completed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +75,7 @@ const toProject = (r: ProjectRow): Project => ({
   color: r.color,
   emoji: r.emoji,
   isArchived: fromBool(r.is_archived),
+  completedAt: r.completed_at,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
 });
@@ -108,10 +110,19 @@ const toTask = (r: TaskRow): Task => ({
 
 // ============================ projects ============================
 
+// The main list: active projects only (not archived, not completed).
 export async function listProjects(): Promise<Project[]> {
   const db = await getDb();
   const rows = await db.select<ProjectRow[]>(
-    "SELECT * FROM projects WHERE is_archived = 0 ORDER BY position, created_at",
+    "SELECT * FROM projects WHERE is_archived = 0 AND completed_at IS NULL ORDER BY position, created_at",
+  );
+  return rows.map(toProject);
+}
+
+export async function listCompletedProjects(): Promise<Project[]> {
+  const db = await getDb();
+  const rows = await db.select<ProjectRow[]>(
+    "SELECT * FROM projects WHERE is_archived = 0 AND completed_at IS NOT NULL ORDER BY completed_at DESC",
   );
   return rows.map(toProject);
 }
@@ -132,13 +143,14 @@ export async function createProject(input: {
     color: null,
     emoji: null,
     isArchived: false,
+    completedAt: null,
     createdAt: ts,
     updatedAt: ts,
   };
   await db.execute(
     `INSERT INTO projects
-       (id, name, description, parent_id, position, color, emoji, is_archived, created_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+       (id, name, description, parent_id, position, color, emoji, is_archived, completed_at, created_at, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
     [
       project.id,
       project.name,
@@ -148,6 +160,7 @@ export async function createProject(input: {
       project.color,
       project.emoji,
       toBool(project.isArchived),
+      project.completedAt,
       project.createdAt,
       project.updatedAt,
     ],
@@ -159,6 +172,26 @@ export async function renameProject(id: string, name: string): Promise<void> {
   const db = await getDb();
   await db.execute("UPDATE projects SET name = $1, updated_at = $2 WHERE id = $3", [
     name,
+    nowIso(),
+    id,
+  ]);
+}
+
+// Completion is independent of deadlines: it's a user action, and the date
+// recorded is simply when they did it.
+export async function completeProject(id: string): Promise<void> {
+  const db = await getDb();
+  const ts = nowIso();
+  await db.execute("UPDATE projects SET completed_at = $1, updated_at = $2 WHERE id = $3", [
+    ts,
+    ts,
+    id,
+  ]);
+}
+
+export async function reopenProject(id: string): Promise<void> {
+  const db = await getDb();
+  await db.execute("UPDATE projects SET completed_at = NULL, updated_at = $1 WHERE id = $2", [
     nowIso(),
     id,
   ]);

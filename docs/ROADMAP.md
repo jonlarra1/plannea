@@ -34,18 +34,18 @@ Decision (Option 1, 2026-06-30): task **structure** lives in **SQLite = source o
 
 The GUI is the first front-end we build, but it stays a replaceable layer over `repo.ts` — everything below the components must work (and be tested) without any UI attached, so the TUI can reuse it all later.
 
-#### 2.1 Test harness (do first — everything after leans on it)
+#### 2.1 Test harness ✅ done
 
-- [ ] Add Vitest and an `npm test` script; record the command in `CLAUDE.md` and `AGENTS.md`.
-- [ ] Extract a thin `DbClient` interface (`execute` / `select`) from `src/data/db.ts`; the app injects the `@tauri-apps/plugin-sql` implementation, `repo.ts` depends only on the interface.
-- [ ] Test adapter: implement `DbClient` with an in-process SQLite (e.g. `better-sqlite3` or `node:sqlite`) on an in-memory database that runs the **real** `0001_init.sql` migration; adapter translates the `$1` placeholder style.
-- [ ] Harness smoke test: `createProject` → `listProjects` returns it, running the real repo code against the real schema.
+- [x] Added Vitest and the `npm test` script; commands recorded in `CLAUDE.md`. (`AGENTS.md` deleted 2026-07-07 — no other AI tools in use.)
+- [x] Extracted the `DbClient` interface (`execute` / `select`) in `src/data/db.ts`; the app lazily loads the `@tauri-apps/plugin-sql` implementation, tests inject their own via `setDbClient()`. `repo.ts` unchanged.
+- [x] Test adapter `tests/helpers/memoryDb.ts`: Node's built-in SQLite (`node:sqlite`, no extra package) on an in-memory database that runs the **real** `0001_init.sql` migration and translates the `$1` placeholder style.
+- [x] Harness smoke test in `tests/repo.test.ts`: `createProject` → `listProjects` returns it — real repo code against the real schema. 2 tests green.
 
 #### 2.2 Behavior tests for the existing data layer
 
 Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the code changes.
 
-- [ ] Projects: create sets position at end; `listProjects` excludes archived; rename/archive/delete work; delete cascades to the project's sections and tasks (assert the FK behavior we intend).
+- [x] Projects — DONE 2026-07-07, test-first, 8 tests green. Rules agreed with the user: create appends at the end; the main list shows only active projects; NEW completed state (`completed_at` column + `completeProject`/`reopenProject`/`listCompletedProjects`) — independent of deadlines, reversible, separate from archive; rename touches only the name; archive hides but destroys nothing; delete cascades to sections, tasks, and sub-projects. Sub-projects stay schema-only (no UI planned; sections are the normal division).
 - [ ] Tasks: create defaults (status `open`, appended position, timestamps); `setTaskStatus("done")` sets `completed_at` and reopening clears it; rename/description/priority/schedule/delete; `listTasks` excludes archived and orders by position.
 - [ ] Sections: create/list per project, ordered.
 - [ ] Decide + test position scoping: `nextPosition` for tasks currently scopes by project only — define what order means once sections/subtasks/days coexist (likely per section or per day), and encode it in tests.

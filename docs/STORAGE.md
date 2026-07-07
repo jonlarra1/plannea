@@ -40,6 +40,7 @@ CREATE TABLE projects (
   color       TEXT,
   emoji       TEXT,
   is_archived INTEGER NOT NULL DEFAULT 0,   -- bool (0/1)
+  completed_at TEXT,                         -- set when the user marks the project completed (decided 2026-07-07)
   created_at  TEXT NOT NULL,                -- ISO-8601 string
   updated_at  TEXT NOT NULL
 );
@@ -102,6 +103,8 @@ CREATE INDEX idx_projects_parent  ON projects(parent_id);
 `scheduled_for` is the day a task appears under (replaces the old `## day` headings); `due_at` is a separate optional deadline. A task can have one, both, or neither.
 
 `completed_at` is the timestamp set when a task is marked done — it powers the "stay checked only for the completion day, then auto-archive" feature.
+
+Projects have three states (decided 2026-07-07): **active** (in the main list), **completed** (`completed_at` set — finished, listed separately as a "trophy shelf", reversible, independent of any deadline), and **archived** (`is_archived` — hidden without ceremony, e.g. paused/abandoned). Only deleting destroys data; delete cascades to the project's sections, tasks, and sub-projects.
 
 `position` is the order of an item within its immediate group (its parent, its section, or its day) — it replaces the fragile reliance on line order.
 

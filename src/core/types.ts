@@ -13,6 +13,7 @@ export interface Project {
   color: string | null;
   emoji: string | null;
   isArchived: boolean;
+  completedAt: string | null; // set when the user marks the project completed
   createdAt: string;
   updatedAt: string;
 }

@@ -9,6 +9,7 @@ CREATE TABLE projects (
   color       TEXT,
   emoji       TEXT,
   is_archived INTEGER NOT NULL DEFAULT 0,
+  completed_at TEXT,                        -- set when the user marks the project completed
   created_at  TEXT NOT NULL,
   updated_at  TEXT NOT NULL
 );
