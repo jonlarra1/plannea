@@ -4,9 +4,7 @@ A step-by-step, dependency-ordered analysis of what's left to build. Grounded in
 
 ## Where the code is today
 
-- **Works (new path):** the SQLite storage foundation is done and committed — migration `src-tauri/migrations/0001_init.sql`, connection in `src/data/db.ts`, and the typed, UI-agnostic data layer `src/data/repo.ts` (projects: create/list/rename/archive/delete; sections: create/list; tasks: create/list/status/rename/description/priority/schedule/delete). Verified writing real rows to `plannea.db`.
-- **Works (old path, still what the UI runs on):** load `*.md` projects, parse day headings + checkbox tasks, toggle, move up/down. (`src/core/project.ts`, `src/data/projectsRepo.ts`, `src/app/App.tsx`)
-- **The gap:** the UI has never touched the database — it still reads/writes the lossy markdown files. There are also no automated tests, and the data layer has no reorder operation (position is only set at creation).
+No live status snapshot is kept here on purpose — the checked boxes below ARE the status, and the session-by-session detail lives in `handoff.md` (local, not committed). The one structural fact worth stating (true until step 2.4 lands): the app currently has **two engines** — the new, tested SQLite data layer (`src/data/repo.ts` + the pure `src/core/` helpers), which no screen uses yet, and the legacy markdown path (`src/core/project.ts`, `src/data/projectsRepo.ts`), which the UI still runs on. Phase 2 swaps the screen onto the new engine and then removes the old one.
 
 ## Testing principles (applies to every phase from here on)
 
@@ -14,6 +12,17 @@ A step-by-step, dependency-ordered analysis of what's left to build. Grounded in
 - **Test each layer through its public API.** `src/core/` functions are pure and tested directly; the data layer is tested through the exported `repo.ts` functions; components get thin tests only where they hold logic.
 - **The data layer is tested against a real SQLite database running the real migration file** — no mocked SQL, so the schema we ship is the schema we test.
 - **The layering is the contract:** UI components call `repo.ts` functions and never SQL; `repo.ts` never imports UI. This is what lets the GUI (built first) and the future TUI share one tested data layer.
+
+## Phase checkpoints (decided 2026-07-08)
+
+Every time a main phase finishes (2→3, 3→4, …), we stop building and run a sanitizing checkpoint before starting the next phase. The checklist:
+
+1. **Everything runs**: full test suite green, typecheck passes, `npm run build` passes, and the app actually launches and works by hand.
+2. **Code review** of everything the phase added (Claude's `/code-review` or a manual pass): correctness first, then "can this be simpler/shorter?", dead code and leftover experiments removed.
+3. **Test quality review**: do the tests still describe how the app SHOULD behave (not just mirror the code)? Did any behavior slip in without a spec? Any duplicated or misleading tests to clean?
+4. **Layer audit**: `core/` imports nothing, `data/` is the only place touching SQL, UI components only call `repo`/`core` — no leaks across the borders.
+5. **Docs match reality**: ROADMAP, STRUCTURE, STORAGE, FEATURES, and handoff say what the code actually does; stale notes deleted.
+6. **Close it out**: everything committed and pushed; from Phase 2 onward, consider a version tag + CHANGELOG entry.
 
 ## Plan, in order
 
@@ -78,9 +87,10 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 - [ ] Delete `src/core/project.ts`, `src/core/frontmatter.ts`, `src/data/projectsRepo.ts` once nothing imports them.
 - [ ] Docs sweep: update `STRUCTURE.md`, the architecture diagram, and `CODING_GUIDE.md` where they reference the old path.
 
-#### 2.7 Release checkpoint — v0.1.0
+#### 2.7 Phase checkpoint + release — v0.1.0
 
-- [ ] When 2.1–2.6 are done the app finally works end-to-end on SQLite: tag `v0.1.0` and start `CHANGELOG.md` (Keep a Changelog format, `Unreleased` section going forward).
+- [ ] Run the full phase checkpoint (see "Phase checkpoints" above) over everything Phase 2 added.
+- [ ] Then the app finally works end-to-end on SQLite: tag `v0.1.0` and start `CHANGELOG.md` (Keep a Changelog format, `Unreleased` section going forward).
 
 ### Phase 3 — Core feature depth (each slice: repo/core change + tests, then UI)
 
@@ -94,10 +104,14 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 - [ ] "Remind me to delete/reset a stale task" button (`tauri-app-notification`).
 - [ ] Loose notes and lists.
 
+- [ ] Phase checkpoint before moving on (see "Phase checkpoints").
+
 ### Phase 4 — Establish the module system
 
 - [ ] Design the `src/modules/` registration pattern (how a module declares UI surface + data access — through `repo.ts` or its own storage, never raw SQL).
 - [ ] Pomodoro as the first module: self-contained, no data-model coupling — proves the pattern with minimal risk.
+
+- [ ] Phase checkpoint before moving on (see "Phase checkpoints").
 
 ### Phase 5 — Later modules & platform (each its own slice)
 
