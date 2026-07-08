@@ -21,6 +21,7 @@ import {
   setTaskPriority,
   setTaskSchedule,
   setTaskStatus,
+  swapTaskPositions,
 } from "../src/data/repo";
 import { openMemoryDb } from "./helpers/memoryDb";
 
@@ -245,6 +246,25 @@ describe("tasks", () => {
     [reloaded] = await listTasks(projectId);
     expect(reloaded.scheduledFor).toBeNull();
     expect(reloaded.dueAt).toBeNull();
+  });
+
+  it("swapping positions exchanges exactly two tasks and leaves the rest untouched", async () => {
+    const a = await createTask({ projectId, title: "A" });
+    const b = await createTask({ projectId, title: "B" });
+    await createTask({ projectId, title: "C" });
+
+    await swapTaskPositions(a.id, b.id);
+
+    expect((await listTasks(projectId)).map((t) => t.title)).toEqual(["B", "A", "C"]);
+  });
+
+  it("refuses to swap with a task that does not exist", async () => {
+    const a = await createTask({ projectId, title: "A" });
+
+    await expect(swapTaskPositions(a.id, "ghost-id")).rejects.toThrow();
+
+    // and the failed attempt changed nothing
+    expect((await listTasks(projectId))[0].position).toBe(a.position);
   });
 
   it("deleting a task destroys it and its subtasks, leaving others untouched", async () => {

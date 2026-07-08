@@ -1,30 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sortTasks } from "../src/core/sortTasks";
 import type { Task } from "../src/core/types";
-
-// Pure core logic — no database needed. A minimal task factory keeps the
-// specs readable: only the fields relevant to sorting vary.
-let nextPosition = 0;
-function makeTask(overrides: Partial<Task> & { title: string }): Task {
-  return {
-    id: overrides.title,
-    projectId: "p1",
-    sectionId: null,
-    parentId: null,
-    description: null,
-    status: "open",
-    importance: 0,
-    urgency: 0,
-    scheduledFor: null,
-    dueAt: null,
-    position: nextPosition++,
-    completedAt: null,
-    isArchived: false,
-    createdAt: "2026-07-07T00:00:00Z",
-    updatedAt: "2026-07-07T00:00:00Z",
-    ...overrides,
-  };
-}
+import { makeTask } from "./helpers/makeTask";
 
 const titles = (tasks: Task[]): string[] => tasks.map((t) => t.title);
 

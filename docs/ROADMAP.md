@@ -48,11 +48,11 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 - [x] Projects — DONE 2026-07-07, test-first, 8 tests green. Rules agreed with the user: create appends at the end; the main list shows only active projects; NEW completed state (`completed_at` column + `completeProject`/`reopenProject`/`listCompletedProjects`) — independent of deadlines, reversible, separate from archive; rename touches only the name; archive hides but destroys nothing; delete cascades to sections, tasks, and sub-projects. Sub-projects stay schema-only (no UI planned; sections are the normal division).
 - [x] Tasks — DONE 2026-07-07, test-first, 9 tests (one red → green). Rules agreed: fresh task starts clean (open, zero priority, no dates, appended at the end); done records the moment; un-checking WIPES the completion date (repeating work belongs to the future habits module, not tasks); rename touches only the title; description is free markdown, removable; NEW: the data layer rejects priority values outside integer 0–3 (the GUI will offer a selector, so this guard catches bugs, not users); planned day and deadline are independent and clearable; deleting a task cascades to its subtasks.
 - [x] Sections — DONE 2026-07-07, test-first (2 red → green). Rules agreed: a new section appends at the end of its project's list; sections stay minimal (name + order, no extra properties until a real need appears); rename touches only the name; NEW `renameSection` + `deleteSection`; deleting a section KEEPS its tasks (they drop back to the project's general list — deleting a box doesn't burn what's inside).
-- [ ] Decide + test position scoping: `nextPosition` for tasks currently scopes by project only — define what order means once sections/subtasks/days coexist (likely per section or per day), and encode it in tests.
+- [x] Position scoping — DECIDED 2026-07-08: position numbers stay one sequence per project (no schema change); groups (a day, a section, a parent) display their slice in that order; reordering swaps a task with its visible neighbor within the group, so relative order survives moves between days.
 
 #### 2.3 Missing operations, test-first
 
-- [ ] `reorderTask` (move up/down within its group) — the one MVP operation the data layer lacks.
+- [x] Reordering — DONE 2026-07-08, test-first (7 tests red → green), split by layer: `src/core/reorder.ts` `findReorderSwap` decides which two neighbors swap (pure, edge-safe); `repo.ts` `swapTaskPositions` performs the swap in one atomic UPDATE and refuses unknown tasks. UI rule agreed: reordering only in manual view — lenses hide the arrows.
 - [x] Sorting lens `src/core/sortTasks.ts` — DONE 2026-07-07, test-first: four view modes (manual / deadline with no-deadline sinking to the bottom / urgency / importance), ties keep manual order, never mutates the input or the stored positions. First pure-core logic of the new era; GUI and future TUI both reuse it.
 - [ ] Pure helpers in `src/core/`: group tasks by day (`scheduled_for`) — pure function with direct tests; components use these instead of doing logic inline.
 - [ ] Move-between-days is `setTaskSchedule` + regrouping — cover with a test at the core-helper level.
@@ -83,6 +83,8 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 - [ ] When 2.1–2.6 are done the app finally works end-to-end on SQLite: tag `v0.1.0` and start `CHANGELOG.md` (Keep a Changelog format, `Unreleased` section going forward).
 
 ### Phase 3 — Core feature depth (each slice: repo/core change + tests, then UI)
+
+- [ ] Views/pages (decided 2026-07-08, see FEATURES "Views and pages"; mostly UI over existing data — each needs only a small query + a pure grouping helper): **Today page first** (daily driver: tasks scheduled for today across projects, sortable by urgency/importance/project — reuses `sortTasks`), then Tomorrow (same view, different date), then the Completed page (grouped by completion date or project). Recurring tasks is NOT a view — new stored concept, design pending (overlap with the habits module), goes last.
 
 - [ ] Subtasks: render `parent_id` children indented; decide + test parent/child completion behavior (does completing the parent complete children?).
 - [ ] Urgency/importance in the UI (data layer already stores 0–3 for both).

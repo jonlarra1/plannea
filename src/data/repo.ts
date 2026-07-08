@@ -389,6 +389,28 @@ export async function setTaskSchedule(
   );
 }
 
+// Swaps the positions of two tasks (a reorder step decided by
+// core/reorder.ts). A single UPDATE so the swap is atomic: both rows change
+// or neither does.
+export async function swapTaskPositions(aId: string, bId: string): Promise<void> {
+  const db = await getDb();
+  const rows = await db.select<{ id: string; position: number }[]>(
+    "SELECT id, position FROM tasks WHERE id IN ($1, $2)",
+    [aId, bId],
+  );
+  if (rows.length !== 2) {
+    throw new Error(`swapTaskPositions: expected 2 tasks, found ${rows.length}`);
+  }
+  const [first, second] = rows;
+  await db.execute(
+    `UPDATE tasks
+       SET position = CASE id WHEN $1 THEN $2 WHEN $3 THEN $4 END,
+           updated_at = $5
+     WHERE id IN ($1, $3)`,
+    [first.id, second.position, second.id, first.position, nowIso()],
+  );
+}
+
 export async function deleteTask(id: string): Promise<void> {
   const db = await getDb();
   await db.execute("DELETE FROM tasks WHERE id = $1", [id]);
