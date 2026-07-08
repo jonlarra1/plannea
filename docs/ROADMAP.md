@@ -89,6 +89,7 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 
 #### 2.7 Phase checkpoint + release — v0.1.0
 
+- [ ] README + GitHub repo description for external viewers (added 2026-07-08; can be done at ANY time — the wording must be timeless: what plannea IS — markdown-first, modular, local-first planner; Tauri v2 + React + SQLite; layered core/data/UI design with GUI now and TUI planned — never what works this week; status belongs to the roadmap checkboxes). The GitHub description/topics box is set on the repo page by the user (the agent shell has no GitHub credentials).
 - [ ] Run the full phase checkpoint (see "Phase checkpoints" above) over everything Phase 2 added.
 - [ ] Then the app finally works end-to-end on SQLite: tag `v0.1.0` and start `CHANGELOG.md` (Keep a Changelog format, `Unreleased` section going forward).
 

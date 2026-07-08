@@ -5,6 +5,7 @@ checklist; it is not linked to the code. `(module)` marks items already decided
 to be later modules, not part of the core MVP.
 
 ## Core: tasks and projects
+- [ ] Add/create tasks (and projects) directly from the app UI — the basic capture flow (scheduled: ROADMAP 2.5; the data layer already supports it)
 - [ ] Sections for different projects / internal sections
 - [ ] Execution order of tasks within a day
 - [ ] Subtasks nested inside other tasks
@@ -31,8 +32,8 @@ to be later modules, not part of the core MVP.
 
 ## Markdown and agent integration
 - [ ] Everything in markdown format
-- [ ] Easy integration with an agent
-- [ ] Access for Claude Code
+- [ ] Agent access, concretely (clarified 2026-07-08): manage plannea from an AI chat — e.g. telling Claude "add a task to buy shoes for tomorrow" in a conversation (like a Claude Code session) creates the real task in the app. Same for completing, rescheduling, or asking "what's on my plate today?". Mechanism: the MCP server module (ROADMAP Phase 5) exposing the same data layer the UI uses — the agent is just another front-end, no separate storage.
+- [ ] Access for Claude Code specifically (the MCP module makes plannea usable from any MCP-capable agent: Claude Code, claude.ai, others)
 
 ## Architecture and platform
 - [ ] Modular app, so capabilities can be added
