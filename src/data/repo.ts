@@ -249,6 +249,22 @@ export async function createSection(projectId: string, name: string): Promise<Se
   return section;
 }
 
+export async function renameSection(id: string, name: string): Promise<void> {
+  const db = await getDb();
+  await db.execute("UPDATE sections SET name = $1, updated_at = $2 WHERE id = $3", [
+    name,
+    nowIso(),
+    id,
+  ]);
+}
+
+// Deleting a section keeps its tasks: the schema sets their section_id to
+// NULL, so they drop back to the project's general list (decided 2026-07-07).
+export async function deleteSection(id: string): Promise<void> {
+  const db = await getDb();
+  await db.execute("DELETE FROM sections WHERE id = $1", [id]);
+}
+
 // ============================ tasks ============================
 
 export async function listTasks(projectId: string): Promise<Task[]> {

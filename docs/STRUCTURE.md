@@ -31,6 +31,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   ├── core/                    # pure logic, no React/Tauri
 │   │   ├── frontmatter.ts       # YAML frontmatter split/join (legacy markdown path)
 │   │   ├── project.ts           # legacy markdown types + parse/serialize/toggle/move
+│   │   ├── sortTasks.ts         # task-ordering lens (manual/deadline/urgency/importance)
 │   │   └── types.ts             # domain model (Project, Section, Task) for the DB
 │   ├── data/                    # data layer — only place that knows SQL/fs
 │   │   ├── db.ts                # opens the shared SQLite connection
@@ -58,7 +59,8 @@ Integration extension (`hediet.vscode-drawio`), or at
 ├── tests/                       # Vitest tests (run with `npm test`)
 │   ├── helpers/
 │   │   └── memoryDb.ts          # in-memory SQLite DbClient running the real migration
-│   ├── repo.test.ts             # data-layer behavior specs (roadmap 2.2: projects + tasks)
+│   ├── repo.test.ts             # data-layer behavior specs (roadmap 2.2: projects, tasks, sections)
+│   ├── sortTasks.test.ts        # specs for the pure task-ordering lens
 │   └── tsconfig.json            # editor types for the tests folder (Node APIs)
 ├── .vscode/
 │   └── extensions.json

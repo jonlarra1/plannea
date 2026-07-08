@@ -47,17 +47,19 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 
 - [x] Projects — DONE 2026-07-07, test-first, 8 tests green. Rules agreed with the user: create appends at the end; the main list shows only active projects; NEW completed state (`completed_at` column + `completeProject`/`reopenProject`/`listCompletedProjects`) — independent of deadlines, reversible, separate from archive; rename touches only the name; archive hides but destroys nothing; delete cascades to sections, tasks, and sub-projects. Sub-projects stay schema-only (no UI planned; sections are the normal division).
 - [x] Tasks — DONE 2026-07-07, test-first, 9 tests (one red → green). Rules agreed: fresh task starts clean (open, zero priority, no dates, appended at the end); done records the moment; un-checking WIPES the completion date (repeating work belongs to the future habits module, not tasks); rename touches only the title; description is free markdown, removable; NEW: the data layer rejects priority values outside integer 0–3 (the GUI will offer a selector, so this guard catches bugs, not users); planned day and deadline are independent and clearable; deleting a task cascades to its subtasks.
-- [ ] Sections: create/list per project, ordered.
+- [x] Sections — DONE 2026-07-07, test-first (2 red → green). Rules agreed: a new section appends at the end of its project's list; sections stay minimal (name + order, no extra properties until a real need appears); rename touches only the name; NEW `renameSection` + `deleteSection`; deleting a section KEEPS its tasks (they drop back to the project's general list — deleting a box doesn't burn what's inside).
 - [ ] Decide + test position scoping: `nextPosition` for tasks currently scopes by project only — define what order means once sections/subtasks/days coexist (likely per section or per day), and encode it in tests.
 
 #### 2.3 Missing operations, test-first
 
 - [ ] `reorderTask` (move up/down within its group) — the one MVP operation the data layer lacks.
-- [ ] Pure helpers in `src/core/`: group tasks by day (`scheduled_for`), sort by position — pure functions with direct tests; components use these instead of doing logic inline.
+- [x] Sorting lens `src/core/sortTasks.ts` — DONE 2026-07-07, test-first: four view modes (manual / deadline with no-deadline sinking to the bottom / urgency / importance), ties keep manual order, never mutates the input or the stored positions. First pure-core logic of the new era; GUI and future TUI both reuse it.
+- [ ] Pure helpers in `src/core/`: group tasks by day (`scheduled_for`) — pure function with direct tests; components use these instead of doing logic inline.
 - [ ] Move-between-days is `setTaskSchedule` + regrouping — cover with a test at the core-helper level.
 
 #### 2.4 Like-for-like UI swap (no new features yet)
 
+- [ ] Add app logging first (`tauri-plugin-log`: writes to the terminal and a log file, captures frontend errors) — decided 2026-07-07, so failures during and after the swap are visible without a debugger.
 - [ ] Rebuild `App.tsx` + components to load from `repo.ts`: sidebar of projects, tasks grouped by day, checkbox toggle (`setTaskStatus`), up/down reorder (`reorderTask`). Components receive data + callbacks; zero SQL, zero file access.
 - [ ] Decide what happens to the old markdown data: recommend seeding a fresh welcome project in the DB (current files are test data, not worth a migrator).
 - [ ] Verify manually in the running app (toggle + reorder persist across restart), then commit the swap on its own.
@@ -86,6 +88,7 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 - [ ] Urgency/importance in the UI (data layer already stores 0–3 for both).
 - [ ] Per-task descriptions: markdown rendering + `![[id]]` links resolved via the DB (link resolution is a pure/core function — testable without UI).
 - [ ] Done-task lifecycle: tasks stay visibly checked only on their completion day, then auto-archive into an "archived" list (a day-rollover check on app start; `completed_at` already exists). Test the rollover rule as a pure function of dates.
+- [ ] Undo for destructive actions (decided 2026-07-07 to want it; design first: undo stack vs trash/soft-delete — until it exists, delete asks for confirmation and archive is the promoted safe path).
 - [ ] "Remind me to delete/reset a stale task" button (`tauri-app-notification`).
 - [ ] Loose notes and lists.
 

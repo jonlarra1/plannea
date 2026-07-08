@@ -17,6 +17,9 @@ to be later modules, not part of the core MVP.
 - [ ] Done tasks stay shown as checked only for the day they were completed;
       after that day they are auto-archived into a separate "archived" list
       within the same project
+- [ ] Task ordering as a lens: view tasks manually ordered (the stored truth), or sorted by deadline (no deadline sinks to the bottom), urgency, or importance — sorting never rewrites the user's manual order (decided 2026-07-07)
+- [ ] Undo: deleting (or changing) something can be undone (idea 2026-07-07 — needs design: undo stack vs trash/soft-delete; until then, archive is the safe path and delete confirms first)
+- [ ] Deadline-aware urgency (lens, not storage): the displayed urgency is the higher of the user's dial and what the approaching deadline implies; the stored dial is never overwritten (idea 2026-07-07, Phase 3 when urgency gets UI)
 
 ## Markdown and agent integration
 - [ ] Everything in markdown format

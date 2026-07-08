@@ -7,12 +7,14 @@ import {
   createSection,
   createTask,
   deleteProject,
+  deleteSection,
   deleteTask,
   listCompletedProjects,
   listProjects,
   listSections,
   listTasks,
   renameProject,
+  renameSection,
   renameTask,
   reopenProject,
   setTaskDescription,
@@ -254,5 +256,52 @@ describe("tasks", () => {
 
     const remaining = await listTasks(projectId);
     expect(remaining.map((t) => t.id)).toEqual([other.id]);
+  });
+});
+
+describe("sections", () => {
+  let projectId: string;
+
+  beforeEach(async () => {
+    projectId = (await createProject({ name: "Test project" })).id;
+  });
+
+  it("a new section goes to the end of its project's section list", async () => {
+    const first = await createSection(projectId, "Week 1");
+    const second = await createSection(projectId, "Week 2");
+
+    expect(first.position).toBe(0);
+    expect(second.position).toBe(1);
+    expect((await listSections(projectId)).map((s) => s.name)).toEqual(["Week 1", "Week 2"]);
+  });
+
+  it("sections belong to exactly one project", async () => {
+    const otherProject = await createProject({ name: "Other" });
+    await createSection(projectId, "Mine");
+
+    expect(await listSections(otherProject.id)).toEqual([]);
+  });
+
+  it("renaming a section changes only its name", async () => {
+    const section = await createSection(projectId, "Old name");
+
+    await renameSection(section.id, "New name");
+
+    const [reloaded] = await listSections(projectId);
+    expect(reloaded.name).toBe("New name");
+    expect(reloaded.position).toBe(section.position);
+    expect(reloaded.createdAt).toBe(section.createdAt);
+  });
+
+  it("deleting a section keeps its tasks — they drop back to the project's general list", async () => {
+    const section = await createSection(projectId, "Doomed box");
+    const task = await createTask({ projectId, title: "Survivor", sectionId: section.id });
+
+    await deleteSection(section.id);
+
+    expect(await listSections(projectId)).toEqual([]);
+    const [reloaded] = await listTasks(projectId);
+    expect(reloaded.id).toBe(task.id);
+    expect(reloaded.sectionId).toBeNull(); // out of the box, still alive
   });
 });
