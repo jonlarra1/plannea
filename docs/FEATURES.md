@@ -20,6 +20,14 @@ to be later modules, not part of the core MVP.
 - [ ] Task ordering as a lens: view tasks manually ordered (the stored truth), or sorted by deadline (no deadline sinks to the bottom), urgency, or importance — sorting never rewrites the user's manual order (decided 2026-07-07)
 - [ ] Undo: deleting (or changing) something can be undone (idea 2026-07-07 — needs design: undo stack vs trash/soft-delete; until then, archive is the safe path and delete confirms first)
 - [ ] Deadline-aware urgency (lens, not storage): the displayed urgency is the higher of the user's dial and what the approaching deadline implies; the stored dial is never overwritten (idea 2026-07-07, Phase 3 when urgency gets UI)
+- [ ] Repetitive/recurring tasks (2026-07-08 — NOT in the schema yet; design decision pending: how it relates to the habits module, since "repeat" was earlier assigned there. Decide once, deliberately, before implementing)
+
+## Views and pages (2026-07-08 — all views over the same stored data; no new storage except recurring)
+- [ ] Today page: tasks scheduled for today across all projects; sortable by urgency, importance, or grouped by project
+- [ ] Tomorrow page: same view, next day
+- [ ] Project page: one project's tasks (the current main view; sections + manual order + sorting lenses; reordering only in manual view)
+- [ ] Completed-tasks page: everything finished, grouped by completion date or by project
+- [ ] Recurring-tasks page: manage the repeat rules (depends on the recurring-tasks design above)
 
 ## Markdown and agent integration
 - [ ] Everything in markdown format
