@@ -22,7 +22,8 @@ Every time a main phase finishes (2→3, 3→4, …), we stop building and run a
 3. **Test quality review**: do the tests still describe how the app SHOULD behave (not just mirror the code)? Did any behavior slip in without a spec? Any duplicated or misleading tests to clean?
 4. **Layer audit**: `core/` imports nothing, `data/` is the only place touching SQL, UI components only call `repo`/`core` — no leaks across the borders.
 5. **Docs match reality**: ROADMAP, STRUCTURE, STORAGE, FEATURES, and handoff say what the code actually does; stale notes deleted.
-6. **Close it out**: everything committed and pushed; from Phase 2 onward, consider a version tag + CHANGELOG entry.
+6. **Security pass**: quick review of what the phase added for security (Tauri capability/permission scope in `capabilities/default.json` still least-privilege? CSP intact? SQL still parameterized, never string-built? any new input trusted that shouldn't be? new dependencies sane — `npm audit` / `cargo audit`?). Depth scales with the phase; use the `tauri-security` skill and `/security-review`. See "Security" below.
+7. **Close it out**: everything committed and pushed; from Phase 2 onward, consider a version tag + CHANGELOG entry.
 
 ## Plan, in order
 
@@ -102,6 +103,7 @@ Redesigning the app's look and structure using the installed design skills (`fro
 - [ ] README + GitHub repo description for external viewers (added 2026-07-08; can be done at ANY time — the wording must be timeless: what plannea IS — markdown-first, modular, local-first planner; Tauri v2 + React + SQLite; layered core/data/UI design with GUI now and TUI planned — never what works this week; status belongs to the roadmap checkboxes). The GitHub description/topics box is set on the repo page by the user (the agent shell has no GitHub credentials).
 - [ ] Run the full phase checkpoint (see "Phase checkpoints" above) over everything Phase 2 added.
 - [ ] Add an optimized release profile to `src-tauri/Cargo.toml` for packaging (from the rust-skills guide): `lto = "fat"`, `codegen-units = 1`, `strip = true` (smaller/faster shipped binary; deliberately NOT added earlier because it slows dev builds and there was nothing to ship — see `tauri-build` skill for packaging).
+- [ ] First real security audit before shipping (see "Security" below): capability/permission scope, CSP, SQL parameterization sweep, `npm audit` + `cargo audit`, and whether the legacy `$APPDATA/projects` fs scope can be dropped once the markdown path is retired (2.6).
 - [ ] Then the app finally works end-to-end on SQLite: tag `v0.1.0` and start `CHANGELOG.md` (Keep a Changelog format, `Unreleased` section going forward).
 
 ### Phase 3 — Core feature depth (each slice: repo/core change + tests, then UI)
@@ -133,6 +135,23 @@ Redesigning the app's look and structure using the installed design skills (`fro
 - [ ] Markdown export: dump the DB to `.md` files for backup/portability/agent-reading (define the format).
 - [ ] Choosable front-end: first-run selector for the lighter TUI or the full GUI (switchable later) — both are front-ends over the same data layer. The GUI ships first; the TUI arrives here and reuses `core` + `data` untouched.
 - [ ] Cross-cutting: zoom, window-state (`tauri-app-window-state`), global shortcuts (`tauri-app-global-shortcut`), widgets, iOS (`tauri-mobile`).
+
+## Security (a first-class, ongoing concern — decided 2026-07-13)
+
+plannea is local-first, but it still has real attack surface, and it grows as modules land. Security is not a one-off task: it's a light recurring pass at every phase checkpoint (point 6 there) plus a deeper dedicated audit before each release (first one at 2.7). Tools available: the `tauri-security` skill (capabilities/scopes/ACL), `/security-review`, `npm audit`, `cargo audit`.
+
+What to check, and when it matters most:
+
+- **Tauri capabilities & scopes** (`src-tauri/capabilities/default.json`): keep permissions least-privilege. Today it still grants a broad `$APPDATA/projects` fs scope from the legacy markdown path — revisit/drop it once 2.6 retires that path. Review every new permission a feature asks for.
+- **CSP** (`tauri.conf.json`): keep a strict Content-Security-Policy so the webview can't load or exfiltrate to arbitrary origins; tighten it before release.
+- **SQL injection**: the data layer must ALWAYS use parameterized queries (`$1`/`?` placeholders), never string-built SQL. Sweep for this each audit — it's the single most important app-level rule (`repo.ts`).
+- **Untrusted input**: markdown descriptions/notes are user text — when they get rendered (Phase 3), render safely (no raw HTML injection / XSS). Any `![[id]]` link resolution must not become a path/entity escape.
+- **Dependencies**: run `npm audit` + `cargo audit` at each audit; keep the supply chain small and known.
+- **Highest-risk future surfaces** (deep audit required when they land, Phase 5):
+  - **MCP server module** (agent access): exposing `repo.ts` as tools means an agent can mutate real data — needs clear boundaries on what it can do, and no ambient authority beyond the data layer.
+  - **Calendar sync (Proton/Google)**: OAuth tokens/secrets must be stored securely (e.g. `tauri-app-stronghold` or the OS keychain), never in plain SQLite or logs; scope the OAuth grants minimally.
+  - **Markdown export / import**: writing DB contents to files and reading them back is a path-handling + trust boundary.
+- **Logging hygiene**: never log secrets/tokens/PII (rust-skills `obs-no-sensitive-data`); matters once sync/auth exist.
 
 ## The decision that matters now
 
