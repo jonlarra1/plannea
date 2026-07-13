@@ -27,6 +27,9 @@ pub fn run() {
             // crashes and closed windows.
             tauri_plugin_log::Builder::new()
                 .level(log_level)
+                // sqlx logs every single query at DEBUG, which floods our own
+                // diary in dev. Keep the SQL layer quiet unless it complains.
+                .level_for("sqlx::query", log::LevelFilter::Warn)
                 // Timestamps in local wall-clock time (the default is UTC,
                 // which would look 2h off in summer-time Spain).
                 .timezone_strategy(TimezoneStrategy::UseLocal)

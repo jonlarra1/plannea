@@ -39,6 +39,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   ├── data/                    # data layer — only place that knows SQL/fs
 │   │   ├── db.ts                # opens the shared SQLite connection
 │   │   ├── repo.ts              # typed CRUD/query functions (the data-layer hook)
+│   │   ├── seed.ts              # first-run "Welcome to plannea" project (only when DB empty)
 │   │   └── projectsRepo.ts      # legacy markdown repo (to be retired in Phase 2)
 │   ├── modules/
 │   │   └── README.md            # placeholder for future feature modules

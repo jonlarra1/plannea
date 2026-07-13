@@ -69,9 +69,9 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 #### 2.4 Like-for-like UI swap (no new features yet)
 
 - [x] Add app logging first — DONE 2026-07-13 (`tauri-plugin-log` in lib.rs: terminal + log file in the app's log dir, local-time timestamps; `log:default` capability; `src/app/logging.ts` wraps `@tauri-apps/plugin-log` with `logInfo`/`logWarn`/`logError`/`logDebug` + hooks for uncaught errors and unhandled rejections, wired in main.tsx). Verbosity decided 2026-07-13: Debug in dev builds, Info in release. Pending manual check in the running app (timestamps + file present).
-- [ ] Rebuild `App.tsx` + components to load from `repo.ts`: sidebar of projects, tasks grouped by day, checkbox toggle (`setTaskStatus`), up/down reorder (`reorderTask`). Components receive data + callbacks; zero SQL, zero file access.
-- [ ] Decide what happens to the old markdown data: recommend seeding a fresh welcome project in the DB (current files are test data, not worth a migrator).
-- [ ] Verify manually in the running app (toggle + reorder persist across restart), then commit the swap on its own.
+- [x] Rebuild `App.tsx` + components onto `repo.ts` — DONE 2026-07-13. App shell holds project list (`listProjects`) + selected project's tasks (`listTasks`), groups them with `groupTasksByDay`, toggles via `setTaskStatus`, reorders via `findReorderSwap` + `swapTaskPositions`; every edit re-reads tasks from the DB (source of truth, no optimistic update); errors logged via `logError`. The 4 components keep their markup/classNames (look unchanged) and switch prop types to the DB shapes (`name`, real task ids, day = date or null → "Unscheduled"). Zero SQL/fs in components. tsc + `npm run build` + 42 tests green.
+- [x] Old markdown data — DONE 2026-07-13: no migrator (old files were throwaway test data). Instead `src/data/seed.ts` seeds a "Welcome to plannea" project (sample tasks across today/tomorrow + one undated) on a brand-new DB only, guarded by `countAllProjects()` so it runs once per DB lifetime.
+- [ ] Verify manually in the running app (toggle + reorder persist across restart), then commit the swap on its own. ← NEXT (needs the user; agent can't drive the GUI / snap).
 
 #### 2.5 New CRUD, one slice per commit (repo/core test first if logic is added, then UI)
 

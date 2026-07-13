@@ -136,6 +136,15 @@ export async function listCompletedProjects(): Promise<Project[]> {
   return rows.map(toProject);
 }
 
+// Counts EVERY project row, whatever its state. Used by the first-run seed to
+// tell "brand-new database" from "user emptied their active list" — the latter
+// must not trigger re-seeding.
+export async function countAllProjects(): Promise<number> {
+  const db = await getDb();
+  const rows = await db.select<{ n: number }[]>("SELECT COUNT(*) AS n FROM projects");
+  return rows[0]?.n ?? 0;
+}
+
 export async function createProject(input: {
   name: string;
   description?: string | null;

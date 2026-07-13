@@ -4,6 +4,7 @@ import { setDbClient } from "../src/data/db";
 import {
   archiveProject,
   completeProject,
+  countAllProjects,
   createProject,
   createSection,
   createTask,
@@ -52,6 +53,20 @@ describe("projects", () => {
 
     const projects = await listProjects();
     expect(projects.map((p) => p.name)).toEqual(["First", "Second"]);
+  });
+
+  it("counts every project regardless of state (for the first-run seed guard)", async () => {
+    expect(await countAllProjects()).toBe(0);
+
+    const active = await createProject({ name: "Active" });
+    const gone = await createProject({ name: "Archived" });
+    await archiveProject(gone.id);
+    const done = await createProject({ name: "Completed" });
+    await completeProject(done.id);
+
+    // active list shows only one, but the raw count still sees all three
+    expect((await listProjects()).map((p) => p.id)).toEqual([active.id]);
+    expect(await countAllProjects()).toBe(3);
   });
 
   it("the main list hides archived projects", async () => {

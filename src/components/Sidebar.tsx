@@ -1,4 +1,4 @@
-import type { Project } from "../core/project";
+import type { Project } from "../core/types";
 
 interface SidebarProps {
   projects: Project[];
@@ -19,7 +19,7 @@ export function Sidebar({ projects, selectedId, onSelect }: SidebarProps) {
               }`}
               onClick={() => onSelect(project.id)}
             >
-              {project.title}
+              {project.name}
             </button>
           </li>
         ))}
