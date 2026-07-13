@@ -99,6 +99,7 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 
 - [ ] Subtasks: render `parent_id` children indented; decide + test parent/child completion behavior (does completing the parent complete children?).
 - [ ] Urgency/importance in the UI (data layer already stores 0–3 for both).
+- [ ] Drag-and-drop reordering (decided 2026-07-13): drag a task to any position in manual view, alongside the kept up/down buttons (mouse vs keyboard). Needs a new data-layer operation — "move task to position" shifting the tasks in between (a drop can jump several places, which neighbor-swap can't express) — test-first, then the UI (likely `dnd-kit`). Reordering stays manual-view-only.
 - [ ] Per-task descriptions: markdown rendering + `![[id]]` links resolved via the DB (link resolution is a pure/core function — testable without UI).
 - [ ] Done-task lifecycle: tasks stay visibly checked only on their completion day, then auto-archive into an "archived" list (a day-rollover check on app start; `completed_at` already exists). Test the rollover rule as a pure function of dates.
 - [ ] Undo for destructive actions (decided 2026-07-07 to want it; design first: undo stack vs trash/soft-delete — until it exists, delete asks for confirmation and archive is the promoted safe path).
