@@ -27,13 +27,14 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   ├── logging.ts           # frontend half of logging: log* wrappers + uncaught-error hooks
 │   │   └── view.ts              # View/Page types + the Pages list for the sidebar
 │   ├── components/              # UI only
-│   │   ├── DaySectionView.tsx   # one day's task group (+ "add task" placeholder)
-│   │   ├── MainView.tsx         # main pane: page header + day-grouped task list
+│   │   ├── MainView.tsx         # main pane: page header + list of task groups
+│   │   ├── TaskGroupView.tsx    # one group (day OR section) heading + tasks (+ "add task" placeholder)
 │   │   ├── Sidebar.tsx          # page-based nav (Pages + Projects groups) + theme toggle
 │   │   └── TaskItem.tsx         # one task row (checkbox, up/down, "⋯" placeholder)
 │   ├── core/                    # pure logic, no React/Tauri
 │   │   ├── frontmatter.ts       # YAML frontmatter split/join (legacy markdown path)
 │   │   ├── groupByDay.ts        # buckets tasks by scheduled day (unscheduled last)
+│   │   ├── groupBySection.ts    # buckets a project's tasks by section (loose tasks first)
 │   │   ├── project.ts           # legacy markdown types + parse/serialize/toggle/move
 │   │   ├── reorder.ts           # decides which two neighbors swap on move up/down
 │   │   ├── sortTasks.ts         # task-ordering lens (manual/deadline/urgency/importance)
@@ -67,6 +68,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   ├── makeTask.ts          # minimal task factory shared by the pure-core specs
 │   │   └── memoryDb.ts          # in-memory SQLite DbClient running the real migration
 │   ├── groupByDay.test.ts       # specs for the day-bucket grouping lens
+│   ├── groupBySection.test.ts   # specs for the section grouping (project view)
 │   ├── reorder.test.ts          # specs for the neighbor-swap reorder logic
 │   ├── repo.test.ts             # data-layer behavior specs (roadmap 2.2: projects, tasks, sections)
 │   ├── sortTasks.test.ts        # specs for the pure task-ordering lens

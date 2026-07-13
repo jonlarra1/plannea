@@ -1,46 +1,47 @@
-import type { DayBucket } from "../core/groupByDay";
+import type { Task } from "../core/types";
 import { TaskItem } from "./TaskItem";
 
-interface DaySectionViewProps {
-  day: DayBucket;
-  heading: string; // formatted for display (e.g. "Today · Mon 13")
-  showHeading: boolean; // hidden on single-day pages where the title already says the day
-  isToday: boolean;
+// A generic group of tasks under a heading — used for both a day bucket (on the
+// date pages) and a section (in the project view). The parent decides the
+// heading text and whether to show it.
+interface TaskGroupViewProps {
+  heading: string;
+  showHeading: boolean;
+  accent: boolean; // e.g. "today" — tints the heading
+  tasks: Task[];
   reorderable: boolean;
-  // Resolve a task's project label; returns null to show none (e.g. inside a
-  // single project's view, where the label would be redundant).
-  projectNameFor: (task: DayBucket["tasks"][number]) => string | null;
+  projectNameFor: (task: Task) => string | null;
   onToggle: (taskId: string) => void;
   onMove: (taskId: string, direction: "up" | "down") => void;
 }
 
-export function DaySectionView({
-  day,
+export function TaskGroupView({
   heading,
   showHeading,
-  isToday,
+  accent,
+  tasks,
   reorderable,
   projectNameFor,
   onToggle,
   onMove,
-}: DaySectionViewProps) {
+}: TaskGroupViewProps) {
   return (
     <section className="day">
       {showHeading && (
-        <h3 className={`day__heading ${isToday ? "day__heading--today" : ""}`}>
+        <h3 className={`day__heading ${accent ? "day__heading--today" : ""}`}>
           <span className="day__dot" />
           {heading}
         </h3>
       )}
       <ul className="day__tasks">
-        {day.tasks.map((task, index) => (
+        {tasks.map((task, index) => (
           <TaskItem
             key={task.id}
             text={task.title}
             done={task.status === "done"}
             projectName={projectNameFor(task)}
             isFirst={index === 0}
-            isLast={index === day.tasks.length - 1}
+            isLast={index === tasks.length - 1}
             reorderable={reorderable}
             onToggle={() => onToggle(task.id)}
             onMoveUp={() => onMove(task.id, "up")}

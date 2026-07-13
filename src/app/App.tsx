@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { groupTasksByDay } from "../core/groupByDay";
+import { groupTasksBySection } from "../core/groupBySection";
 import { findReorderSwap } from "../core/reorder";
-import type { Project, Task } from "../core/types";
-import { listProjects, listTasks, setTaskStatus, swapTaskPositions } from "../data/repo";
+import type { Project, Section, Task } from "../core/types";
+import { listProjects, listSections, listTasks, setTaskStatus, swapTaskPositions } from "../data/repo";
 import { seedWelcomeProjectIfEmpty } from "../data/seed";
 import { Sidebar } from "../components/Sidebar";
-import { MainView } from "../components/MainView";
-import { longDate, todayIso, tomorrowIso } from "./dates";
+import { MainView, type RenderGroup } from "../components/MainView";
+import { formatDayHeading, longDate, todayIso, tomorrowIso } from "./dates";
 import { type Page, type View } from "./view";
 import { logError, logInfo } from "./logging";
 
 // The shell owns navigation (which page/project is shown), the loaded data
-// (all projects + all their tasks), and the theme. The sidebar picks a view;
-// the main pane renders the tasks that view selects, grouped by day. Data comes
-// from repo.ts; components stay presentational.
+// (all projects, their tasks and sections), and the theme. The sidebar picks a
+// view; the main pane renders that view's tasks — grouped by DAY on the date
+// pages, and by SECTION inside a project. Data comes from repo.ts; components
+// stay presentational.
 //
 // NOTE (design pass, 2026-07-13): the pages filter the ALREADY-loaded tasks
 // client-side. Making them robust cross-project lenses (sorting, empty states)
@@ -39,6 +41,7 @@ function initialTheme(): "light" | "dark" {
 export function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
   const [view, setView] = useState<View>({ kind: "page", page: "today" });
   const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
 
@@ -48,17 +51,22 @@ export function App() {
     localStorage.setItem("plannea-theme", theme);
   }, [theme]);
 
-  // Reload every task across every project (the pages need a cross-project view).
-  const reloadTasks = useCallback(async (loaded: Project[]): Promise<void> => {
+  // Reload every task + section across every project (pages need a cross-project
+  // view; the project view needs that project's sections).
+  const reloadData = useCallback(async (loaded: Project[]): Promise<void> => {
     try {
-      const perProject = await Promise.all(loaded.map((p) => listTasks(p.id)));
-      setTasks(perProject.flat());
+      const [perProjectTasks, perProjectSections] = await Promise.all([
+        Promise.all(loaded.map((p) => listTasks(p.id))),
+        Promise.all(loaded.map((p) => listSections(p.id))),
+      ]);
+      setTasks(perProjectTasks.flat());
+      setSections(perProjectSections.flat());
     } catch (err) {
-      void logError(`failed to load tasks: ${String(err)}`);
+      void logError(`failed to load data: ${String(err)}`);
     }
   }, []);
 
-  // Startup: seed if needed, load projects, then load their tasks.
+  // Startup: seed if needed, load projects, then load their tasks + sections.
   useEffect(() => {
     let cancelled = false;
     bootstrapOnce()
@@ -66,13 +74,13 @@ export function App() {
         if (cancelled) return;
         setProjects(loaded);
         void logInfo(`loaded ${loaded.length} project(s)`);
-        return reloadTasks(loaded);
+        return reloadData(loaded);
       })
       .catch((err) => void logError(`failed to start: ${String(err)}`));
     return () => {
       cancelled = true;
     };
-  }, [reloadTasks]);
+  }, [reloadData]);
 
   const today = todayIso();
   const tomorrow = tomorrowIso();
@@ -92,7 +100,37 @@ export function App() {
     }
   }, [tasks, view, today, tomorrow]);
 
-  const days = useMemo(() => groupTasksByDay(viewTasks), [viewTasks]);
+  // Build the groups to render: by SECTION inside a project, by DAY on the
+  // date pages. Both resolve to the same RenderGroup shape.
+  const groups = useMemo<RenderGroup[]>(() => {
+    if (view.kind === "project") {
+      const projectSections = sections.filter((s) => s.projectId === view.projectId);
+      return groupTasksBySection(viewTasks, projectSections).map((bucket) => ({
+        key: bucket.sectionId ?? "__loose",
+        // loose tasks (no section) render at the top with no heading
+        heading:
+          bucket.sectionId === null
+            ? ""
+            : projectSections.find((s) => s.id === bucket.sectionId)?.name ?? "Section",
+        showHeading: bucket.sectionId !== null,
+        accent: false,
+        tasks: bucket.tasks,
+      }));
+    }
+    // Single-day pages (Today/Tomorrow/Unscheduled) don't repeat the day in a
+    // heading — the page title already says it; Scheduled spans days, so it does.
+    const showHeadings = view.page === "scheduled";
+    return groupTasksByDay(viewTasks).map((bucket) => {
+      const { text, isToday } = formatDayHeading(bucket.day);
+      return {
+        key: bucket.day ?? "__unscheduled",
+        heading: text,
+        showHeading: showHeadings,
+        accent: isToday,
+        tasks: bucket.tasks,
+      };
+    });
+  }, [view, viewTasks, sections]);
 
   const counts = useMemo<Record<Page, number>>(
     () => ({
@@ -109,7 +147,7 @@ export function App() {
     if (!task) return;
     try {
       await setTaskStatus(taskId, task.status === "done" ? "open" : "done");
-      await reloadTasks(projects);
+      await reloadData(projects);
     } catch (err) {
       void logError(`failed to toggle task ${taskId}: ${String(err)}`);
     }
@@ -124,7 +162,7 @@ export function App() {
     if (!swap) return;
     try {
       await swapTaskPositions(swap[0].id, swap[1].id);
-      await reloadTasks(projects);
+      await reloadData(projects);
     } catch (err) {
       void logError(`failed to move task ${taskId}: ${String(err)}`);
     }
@@ -159,11 +197,9 @@ export function App() {
       <MainView
         title={title}
         subtitle={subtitle}
-        days={days}
-        // Day headings only where a view spans multiple days; on Today/Tomorrow/
-        // Unscheduled the page title already names the day, so they'd just repeat it.
-        showDayHeadings={view.kind === "project" || (view.kind === "page" && view.page === "scheduled")}
+        groups={groups}
         reorderable={view.kind === "project"} // manual order only within a project
+        showCompletedToggle={view.kind === "project"}
         projectNameFor={projectNameFor}
         emptyNote={emptyNote}
         onToggle={(taskId) => void handleToggle(taskId)}

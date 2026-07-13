@@ -34,7 +34,7 @@ The left sidebar IS the navigation: a **Pages** group on top, then a **Projects*
   - (each sortable by urgency/importance/project via the sorting lens; reordering only in manual view)
 - [ ] Projects group — a list of projects; opening one shows that project's tasks (sections + manual order + sorting lenses): the per-project view
 - [ ] Calendar view (day / week / month) — LAST, it's the most complex; also the home for external calendar sync (Proton / Google Calendar)
-- [ ] Completed-tasks page: everything finished, grouped by completion date or by project
+- [ ] Completed tasks (refined 2026-07-13): the PRIMARY way to see them is a **"Show completed" toggle inside a project's view** — completed tasks are HIDDEN by default and the toggle reveals them, because the important tasks live in the Projects area. A broader global "Completed" view (everything finished, grouped by completion date/project) stays as a secondary idea, not the main mechanism.
 - [ ] Recurring-tasks page: manage the repeat rules (depends on the recurring-tasks design above)
 - Theme: light + dark, user-toggleable (decided 2026-07-13)
 - Look: calm, airy, spacious — the markdown/monospace "ledger" direction was rejected (2026-07-13)
@@ -48,7 +48,7 @@ The left sidebar IS the navigation: a **Pages** group on top, then a **Projects*
 - [ ] Modular app, so capabilities can be added
 - [ ] Zoom in the desktop app
 - [ ] Support for widgets
-- [ ] Security as a first-class, ongoing concern (decided 2026-07-13): least-privilege Tauri capabilities, strict CSP, always-parameterized SQL, safe rendering of user markdown, secure secret storage for future calendar-sync OAuth, and clear boundaries on MCP agent access — a light pass at every phase checkpoint + a deeper audit before each release. Full detail in ROADMAP "Security".
+wr- [ ] Security as a first-class, ongoing concern (decided 2026-07-13): least-privilege Tauri capabilities, strict CSP, always-parameterized SQL, safe rendering of user markdown, secure secret storage for future calendar-sync OAuth, and clear boundaries on MCP agent access — a light pass at every phase checkpoint + a deeper audit before each release. Full detail in ROADMAP "Security".
 
 ## Time and productivity
 - [ ] Pomodoro / stopwatch

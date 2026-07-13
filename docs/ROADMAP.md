@@ -83,6 +83,8 @@ Redesigning the app's look and structure using the installed design skills (`fro
 - Build order (user's call): build the LOOK first — styling, themes, page shell, and inactive placeholders ("+ project", "+ add task", per-task "⋯" menu) — using the real seeded tasks as the canvas.
 - [ ] Build the visual shell + light/dark theme system (this slice; iterate LIVE with the app open — Vite HMR).
 - [ ] NEAR-FUTURE (close to now): wire each page to its real filtered data across ALL projects (Today/Tomorrow/Scheduled/Unscheduled as robust lenses over every project; sorting; empty states). Any simple filtering stubbed during the visual pass gets made correct + cross-project here.
+- [ ] "Show completed" toggle in the PROJECT view (decided 2026-07-13): completed tasks hidden by default, toggle reveals them. Placeholder in the visual pass; wire it (a simple client-side filter of done tasks) with the page-data task above. See FEATURES "Completed tasks".
+- [x] Project view groups by SECTIONS, not date — DONE 2026-07-13, test-first (7 tests): pure `src/core/groupBySection.ts`; generic `TaskGroupView` renders a day OR section group; `MainView` takes a generic `RenderGroup[]`; App loads sections and builds day-groups for pages / section-groups for a project; `seed.ts` adds sample sections. Named (even empty) sections show; loose tasks form a leading, heading-less bucket.
 
 #### 2.5 New CRUD, one slice per commit (repo/core test first if logic is added, then UI)
 
@@ -91,6 +93,7 @@ Redesigning the app's look and structure using the installed design skills (`fro
 - [ ] Rename task (inline edit).
 - [ ] Delete task.
 - [ ] Move task between days.
+- [ ] Manage sections in a project: create / rename / delete, and assign a task to a section (repo already has `createSection`/`renameSection`/`deleteSection`). NOTE: the sections in `seed.ts` ("Planning", "This week") are just SAMPLE data to show the grouping — real sections are user-created; this slice is what makes them so (idea 2026-07-13).
 - [ ] Archive project + delete project (native confirm dialog — `tauri-app-dialog`).
 
 #### 2.6 Retire the legacy markdown path

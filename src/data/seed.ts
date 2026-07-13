@@ -1,4 +1,4 @@
-import { countAllProjects, createProject, createTask } from "./repo";
+import { countAllProjects, createProject, createSection, createTask } from "./repo";
 
 // First-run convenience (decided 2026-07-13): if the database has never held a
 // project, create a small "Welcome to plannea" project so the app has
@@ -17,11 +17,16 @@ export async function seedWelcomeProjectIfEmpty(): Promise<void> {
   const today = isoDay(new Date());
   const tomorrow = isoDay(addDays(new Date(), 1));
 
-  // A couple of dated days plus one undated task, so every kind of day bucket
-  // (including the "unscheduled" one) shows up.
-  await createTask({ projectId: project.id, title: "Check off this task", scheduledFor: today });
-  await createTask({ projectId: project.id, title: "Reorder me with the arrows", scheduledFor: today });
-  await createTask({ projectId: project.id, title: "Plan something for tomorrow", scheduledFor: tomorrow });
+  // Two sections so the project view shows section grouping; some tasks sit in
+  // sections, one stays loose (no section). Dates are spread across today /
+  // tomorrow / none so the date pages (Today / Tomorrow / Unscheduled) also
+  // each have something to show.
+  const planning = await createSection(project.id, "Planning");
+  const thisWeek = await createSection(project.id, "This week");
+
+  await createTask({ projectId: project.id, sectionId: planning.id, title: "Check off this task", scheduledFor: today });
+  await createTask({ projectId: project.id, sectionId: planning.id, title: "Reorder me with the arrows", scheduledFor: today });
+  await createTask({ projectId: project.id, sectionId: thisWeek.id, title: "Plan something for tomorrow", scheduledFor: tomorrow });
   await createTask({ projectId: project.id, title: "An idea with no date yet" });
 }
 

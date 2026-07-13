@@ -1,14 +1,23 @@
-import type { DayBucket } from "../core/groupByDay";
 import type { Task } from "../core/types";
-import { formatDayHeading } from "../app/dates";
-import { DaySectionView } from "./DaySectionView";
+import { TaskGroupView } from "./TaskGroupView";
+
+// A group ready to render: a day bucket or a section, already resolved to a
+// heading by the parent (App). This keeps MainView agnostic about whether it's
+// showing dates or sections.
+export interface RenderGroup {
+  key: string;
+  heading: string;
+  showHeading: boolean;
+  accent: boolean;
+  tasks: Task[];
+}
 
 interface MainViewProps {
   title: string;
   subtitle: string;
-  days: DayBucket[];
-  showDayHeadings: boolean;
+  groups: RenderGroup[];
   reorderable: boolean;
+  showCompletedToggle: boolean; // only in a project view (where completed tasks matter)
   projectNameFor: (task: Task) => string | null;
   emptyNote: string;
   onToggle: (taskId: string) => void;
@@ -18,9 +27,9 @@ interface MainViewProps {
 export function MainView({
   title,
   subtitle,
-  days,
-  showDayHeadings,
+  groups,
   reorderable,
+  showCompletedToggle,
   projectNameFor,
   emptyNote,
   onToggle,
@@ -33,32 +42,36 @@ export function MainView({
           <h2 className="page-header__title">{title}</h2>
           <span className="page-header__subtitle">{subtitle}</span>
         </div>
-        {/* inactive placeholder — sort/view switcher comes later */}
-        <span className="sort-switcher is-placeholder" title="Sort — coming soon">
-          Sort: manual ⌄
-        </span>
+        {/* inactive placeholders — these controls come later */}
+        <div className="page-header__controls">
+          {showCompletedToggle && (
+            <span className="pill is-placeholder" title="Show completed tasks — coming soon">
+              Show completed
+            </span>
+          )}
+          <span className="pill is-placeholder" title="Sort — coming soon">
+            Sort: manual ⌄
+          </span>
+        </div>
       </header>
 
       <div className="page-body">
-        {days.length === 0 ? (
+        {groups.length === 0 ? (
           <p className="empty-note">{emptyNote}</p>
         ) : (
-          days.map((day) => {
-            const { text, isToday } = formatDayHeading(day.day);
-            return (
-              <DaySectionView
-                key={day.day ?? "unscheduled"}
-                day={day}
-                heading={text}
-                showHeading={showDayHeadings}
-                isToday={isToday}
-                reorderable={reorderable}
-                projectNameFor={projectNameFor}
-                onToggle={onToggle}
-                onMove={(taskId, direction) => onMove(day.tasks, taskId, direction)}
-              />
-            );
-          })
+          groups.map((group) => (
+            <TaskGroupView
+              key={group.key}
+              heading={group.heading}
+              showHeading={group.showHeading}
+              accent={group.accent}
+              tasks={group.tasks}
+              reorderable={reorderable}
+              projectNameFor={projectNameFor}
+              onToggle={onToggle}
+              onMove={(taskId, direction) => onMove(group.tasks, taskId, direction)}
+            />
+          ))
         )}
       </div>
     </main>

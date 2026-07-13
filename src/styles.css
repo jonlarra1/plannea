@@ -237,8 +237,14 @@ button {
   color: var(--text-dim);
 }
 
-/* sort switcher — inactive placeholder for now */
-.sort-switcher {
+.page-header__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* header control chips (sort, show-completed) — inactive placeholders for now */
+.pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -248,6 +254,7 @@ button {
   border-radius: var(--radius-sm);
   padding: 6px 10px;
   background: var(--surface);
+  white-space: nowrap;
 }
 
 /* --------------------------- day + task list -------------------------- */
