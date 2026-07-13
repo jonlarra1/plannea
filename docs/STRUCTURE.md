@@ -30,6 +30,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   └── TaskItem.tsx         # one task row (checkbox, up/down)
 │   ├── core/                    # pure logic, no React/Tauri
 │   │   ├── frontmatter.ts       # YAML frontmatter split/join (legacy markdown path)
+│   │   ├── groupByDay.ts        # buckets tasks by scheduled day (unscheduled last)
 │   │   ├── project.ts           # legacy markdown types + parse/serialize/toggle/move
 │   │   ├── reorder.ts           # decides which two neighbors swap on move up/down
 │   │   ├── sortTasks.ts         # task-ordering lens (manual/deadline/urgency/importance)
@@ -61,6 +62,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   ├── helpers/
 │   │   ├── makeTask.ts          # minimal task factory shared by the pure-core specs
 │   │   └── memoryDb.ts          # in-memory SQLite DbClient running the real migration
+│   ├── groupByDay.test.ts       # specs for the day-bucket grouping lens
 │   ├── reorder.test.ts          # specs for the neighbor-swap reorder logic
 │   ├── repo.test.ts             # data-layer behavior specs (roadmap 2.2: projects, tasks, sections)
 │   ├── sortTasks.test.ts        # specs for the pure task-ordering lens

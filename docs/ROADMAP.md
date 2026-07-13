@@ -63,8 +63,8 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 
 - [x] Reordering — DONE 2026-07-08, test-first (7 tests red → green), split by layer: `src/core/reorder.ts` `findReorderSwap` decides which two neighbors swap (pure, edge-safe); `repo.ts` `swapTaskPositions` performs the swap in one atomic UPDATE and refuses unknown tasks. UI rule agreed: reordering only in manual view — lenses hide the arrows.
 - [x] Sorting lens `src/core/sortTasks.ts` — DONE 2026-07-07, test-first: four view modes (manual / deadline with no-deadline sinking to the bottom / urgency / importance), ties keep manual order, never mutates the input or the stored positions. First pure-core logic of the new era; GUI and future TUI both reuse it.
-- [ ] Pure helpers in `src/core/`: group tasks by day (`scheduled_for`) — pure function with direct tests; components use these instead of doing logic inline.
-- [ ] Move-between-days is `setTaskSchedule` + regrouping — cover with a test at the core-helper level.
+- [x] Pure helpers in `src/core/`: group tasks by day — DONE 2026-07-13, test-first (6 tests red → green): `src/core/groupByDay.ts` `groupTasksByDay` buckets tasks by `scheduledFor`, days oldest-first, one "unscheduled" bucket last (user decision), no empty buckets, never mutates. Deliberately does NOT sort inside buckets (user decision): sort with `sortTasks` first, then group — two composable lenses.
+- [x] Move-between-days is `setTaskSchedule` + regrouping — DONE 2026-07-13: covered by a repo-level test (reschedule, regroup, task lands in the new day's bucket); no dedicated "move" operation needed.
 
 #### 2.4 Like-for-like UI swap (no new features yet)
 

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { groupTasksByDay } from "../src/core/groupByDay";
 import { setDbClient } from "../src/data/db";
 import {
   archiveProject,
@@ -246,6 +247,19 @@ describe("tasks", () => {
     [reloaded] = await listTasks(projectId);
     expect(reloaded.scheduledFor).toBeNull();
     expect(reloaded.dueAt).toBeNull();
+  });
+
+  it("moving a task to another day is just reschedule + regroup", async () => {
+    // No dedicated "move" operation exists: the UI reschedules and regroups.
+    await createTask({ projectId, title: "Stays", scheduledFor: "2026-07-13" });
+    const mover = await createTask({ projectId, title: "Moves", scheduledFor: "2026-07-13" });
+
+    await setTaskSchedule(mover.id, "2026-07-14", null);
+
+    const buckets = groupTasksByDay(await listTasks(projectId));
+    expect(buckets.map((b) => b.day)).toEqual(["2026-07-13", "2026-07-14"]);
+    expect(buckets[0].tasks.map((t) => t.title)).toEqual(["Stays"]);
+    expect(buckets[1].tasks.map((t) => t.title)).toEqual(["Moves"]);
   });
 
   it("swapping positions exchanges exactly two tasks and leaves the rest untouched", async () => {
