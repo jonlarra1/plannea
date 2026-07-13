@@ -71,7 +71,17 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 - [x] Add app logging first — DONE 2026-07-13 (`tauri-plugin-log` in lib.rs: terminal + log file in the app's log dir, local-time timestamps; `log:default` capability; `src/app/logging.ts` wraps `@tauri-apps/plugin-log` with `logInfo`/`logWarn`/`logError`/`logDebug` + hooks for uncaught errors and unhandled rejections, wired in main.tsx). Verbosity decided 2026-07-13: Debug in dev builds, Info in release. Pending manual check in the running app (timestamps + file present).
 - [x] Rebuild `App.tsx` + components onto `repo.ts` — DONE 2026-07-13. App shell holds project list (`listProjects`) + selected project's tasks (`listTasks`), groups them with `groupTasksByDay`, toggles via `setTaskStatus`, reorders via `findReorderSwap` + `swapTaskPositions`; every edit re-reads tasks from the DB (source of truth, no optimistic update); errors logged via `logError`. The 4 components keep their markup/classNames (look unchanged) and switch prop types to the DB shapes (`name`, real task ids, day = date or null → "Unscheduled"). Zero SQL/fs in components. tsc + `npm run build` + 42 tests green.
 - [x] Old markdown data — DONE 2026-07-13: no migrator (old files were throwaway test data). Instead `src/data/seed.ts` seeds a "Welcome to plannea" project (sample tasks across today/tomorrow + one undated) on a brand-new DB only, guarded by `countAllProjects()` so it runs once per DB lifetime.
-- [ ] Verify manually in the running app (toggle + reorder persist across restart), then commit the swap on its own. ← NEXT (needs the user; agent can't drive the GUI / snap).
+- [x] Verify manually in the running app — DONE 2026-07-13: clean relaunch loaded exactly 1 welcome project; toggling tasks persisted to the DB (3 rows `done` on disk); swap committed on its own.
+
+#### 2.4.1 Visual design pass + page-based navigation shell (started 2026-07-13)
+
+Redesigning the app's look and structure using the installed design skills (`frontend-design`, `web-design-guidelines`, `accessibility`). Decisions agreed with the user (2026-07-13):
+- Sidebar becomes PAGE-BASED navigation: a **Pages** group (Today, Tomorrow, Scheduled, Unscheduled) on top, then a **Projects** group below (open a project to see its tasks). Calendar view (day/week/month) + external calendar sync (Proton/Google) come LAST — most complex.
+- Two themes: light + dark, user-toggleable.
+- Aesthetic: calm / airy / spacious; the markdown-ledger direction was rejected.
+- Build order (user's call): build the LOOK first — styling, themes, page shell, and inactive placeholders ("+ project", "+ add task", per-task "⋯" menu) — using the real seeded tasks as the canvas.
+- [ ] Build the visual shell + light/dark theme system (this slice; iterate LIVE with the app open — Vite HMR).
+- [ ] NEAR-FUTURE (close to now): wire each page to its real filtered data across ALL projects (Today/Tomorrow/Scheduled/Unscheduled as robust lenses over every project; sorting; empty states). Any simple filtering stubbed during the visual pass gets made correct + cross-project here.
 
 #### 2.5 New CRUD, one slice per commit (repo/core test first if logic is added, then UI)
 
@@ -91,6 +101,7 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 
 - [ ] README + GitHub repo description for external viewers (added 2026-07-08; can be done at ANY time — the wording must be timeless: what plannea IS — markdown-first, modular, local-first planner; Tauri v2 + React + SQLite; layered core/data/UI design with GUI now and TUI planned — never what works this week; status belongs to the roadmap checkboxes). The GitHub description/topics box is set on the repo page by the user (the agent shell has no GitHub credentials).
 - [ ] Run the full phase checkpoint (see "Phase checkpoints" above) over everything Phase 2 added.
+- [ ] Add an optimized release profile to `src-tauri/Cargo.toml` for packaging (from the rust-skills guide): `lto = "fat"`, `codegen-units = 1`, `strip = true` (smaller/faster shipped binary; deliberately NOT added earlier because it slows dev builds and there was nothing to ship — see `tauri-build` skill for packaging).
 - [ ] Then the app finally works end-to-end on SQLite: tag `v0.1.0` and start `CHANGELOG.md` (Keep a Changelog format, `Unreleased` section going forward).
 
 ### Phase 3 — Core feature depth (each slice: repo/core change + tests, then UI)

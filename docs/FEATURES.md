@@ -24,12 +24,20 @@ to be later modules, not part of the core MVP.
 - [ ] Deadline-aware urgency (lens, not storage): the displayed urgency is the higher of the user's dial and what the approaching deadline implies; the stored dial is never overwritten (idea 2026-07-07, Phase 3 when urgency gets UI)
 - [ ] Repetitive/recurring tasks (2026-07-08 — NOT in the schema yet; design decision pending: how it relates to the habits module, since "repeat" was earlier assigned there. Decide once, deliberately, before implementing)
 
-## Views and pages (2026-07-08 — all views over the same stored data; no new storage except recurring)
-- [ ] Today page: tasks scheduled for today across all projects; sortable by urgency, importance, or grouped by project
-- [ ] Tomorrow page: same view, next day
-- [ ] Project page: one project's tasks (the current main view; sections + manual order + sorting lenses; reordering only in manual view)
+## Views and pages (2026-07-08; refined 2026-07-13 into the app's PRIMARY navigation — all views are lenses over the same stored data; no new storage except recurring + calendar sync)
+The left sidebar IS the navigation: a **Pages** group on top, then a **Projects** group below.
+- [ ] Pages group — task lenses by date:
+  - [ ] Today: tasks scheduled for today across all projects
+  - [ ] Tomorrow: same, next day
+  - [ ] Scheduled: all tasks that have a date
+  - [ ] Unscheduled: all tasks with no date
+  - (each sortable by urgency/importance/project via the sorting lens; reordering only in manual view)
+- [ ] Projects group — a list of projects; opening one shows that project's tasks (sections + manual order + sorting lenses): the per-project view
+- [ ] Calendar view (day / week / month) — LAST, it's the most complex; also the home for external calendar sync (Proton / Google Calendar)
 - [ ] Completed-tasks page: everything finished, grouped by completion date or by project
 - [ ] Recurring-tasks page: manage the repeat rules (depends on the recurring-tasks design above)
+- Theme: light + dark, user-toggleable (decided 2026-07-13)
+- Look: calm, airy, spacious — the markdown/monospace "ledger" direction was rejected (2026-07-13)
 
 ## Markdown and agent integration
 - [ ] Everything in markdown format
