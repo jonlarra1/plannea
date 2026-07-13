@@ -22,13 +22,15 @@ Integration extension (`hediet.vscode-drawio`), or at
 ├── public/                      # static assets (tauri.svg, vite.svg)
 ├── src/
 │   ├── app/
-│   │   ├── App.tsx              # shell; owns projects + selectedId state
-│   │   └── logging.ts           # frontend half of logging: log* wrappers + uncaught-error hooks
+│   │   ├── App.tsx              # shell; owns navigation (page/project view), loaded data, theme
+│   │   ├── dates.ts             # day-string helpers + human date labels
+│   │   ├── logging.ts           # frontend half of logging: log* wrappers + uncaught-error hooks
+│   │   └── view.ts              # View/Page types + the Pages list for the sidebar
 │   ├── components/              # UI only
-│   │   ├── DaySectionView.tsx   # renders one day's task group
-│   │   ├── ProjectView.tsx      # renders a project's days + tasks
-│   │   ├── Sidebar.tsx          # project list / selector
-│   │   └── TaskItem.tsx         # one task row (checkbox, up/down)
+│   │   ├── DaySectionView.tsx   # one day's task group (+ "add task" placeholder)
+│   │   ├── MainView.tsx         # main pane: page header + day-grouped task list
+│   │   ├── Sidebar.tsx          # page-based nav (Pages + Projects groups) + theme toggle
+│   │   └── TaskItem.tsx         # one task row (checkbox, up/down, "⋯" placeholder)
 │   ├── core/                    # pure logic, no React/Tauri
 │   │   ├── frontmatter.ts       # YAML frontmatter split/join (legacy markdown path)
 │   │   ├── groupByDay.ts        # buckets tasks by scheduled day (unscheduled last)

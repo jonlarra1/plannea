@@ -48,6 +48,7 @@ The left sidebar IS the navigation: a **Pages** group on top, then a **Projects*
 - [ ] Modular app, so capabilities can be added
 - [ ] Zoom in the desktop app
 - [ ] Support for widgets
+- [ ] Security as a first-class, ongoing concern (decided 2026-07-13): least-privilege Tauri capabilities, strict CSP, always-parameterized SQL, safe rendering of user markdown, secure secret storage for future calendar-sync OAuth, and clear boundaries on MCP agent access — a light pass at every phase checkpoint + a deeper audit before each release. Full detail in ROADMAP "Security".
 
 ## Time and productivity
 - [ ] Pomodoro / stopwatch
