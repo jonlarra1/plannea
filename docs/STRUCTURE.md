@@ -22,7 +22,8 @@ Integration extension (`hediet.vscode-drawio`), or at
 ├── public/                      # static assets (tauri.svg, vite.svg)
 ├── src/
 │   ├── app/
-│   │   └── App.tsx              # shell; owns projects + selectedId state
+│   │   ├── App.tsx              # shell; owns projects + selectedId state
+│   │   └── logging.ts           # frontend half of logging: log* wrappers + uncaught-error hooks
 │   ├── components/              # UI only
 │   │   ├── DaySectionView.tsx   # renders one day's task group
 │   │   ├── ProjectView.tsx      # renders a project's days + tasks

@@ -68,7 +68,7 @@ Written from `STORAGE.md`'s intended behavior; where code and spec disagree, the
 
 #### 2.4 Like-for-like UI swap (no new features yet)
 
-- [ ] Add app logging first (`tauri-plugin-log`: writes to the terminal and a log file, captures frontend errors) — decided 2026-07-07, so failures during and after the swap are visible without a debugger.
+- [x] Add app logging first — DONE 2026-07-13 (`tauri-plugin-log` in lib.rs: terminal + log file in the app's log dir, local-time timestamps; `log:default` capability; `src/app/logging.ts` wraps `@tauri-apps/plugin-log` with `logInfo`/`logWarn`/`logError`/`logDebug` + hooks for uncaught errors and unhandled rejections, wired in main.tsx). Verbosity decided 2026-07-13: Debug in dev builds, Info in release. Pending manual check in the running app (timestamps + file present).
 - [ ] Rebuild `App.tsx` + components to load from `repo.ts`: sidebar of projects, tasks grouped by day, checkbox toggle (`setTaskStatus`), up/down reorder (`reorderTask`). Components receive data + callbacks; zero SQL, zero file access.
 - [ ] Decide what happens to the old markdown data: recommend seeding a fresh welcome project in the DB (current files are test data, not worth a migrator).
 - [ ] Verify manually in the running app (toggle + reorder persist across restart), then commit the swap on its own.
