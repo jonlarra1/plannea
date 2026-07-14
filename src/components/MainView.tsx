@@ -2,6 +2,7 @@ import type { TaskSortMode } from "../core/sortTasks";
 import type { Task } from "../core/types";
 import { SortMenu } from "./SortMenu";
 import { TaskGroupView } from "./TaskGroupView";
+import type { PriorityTag } from "./TaskItem";
 
 // A group ready to render: a day bucket or a section, already resolved to a
 // heading by the parent (App). This keeps MainView agnostic about whether it's
@@ -25,6 +26,7 @@ interface MainViewProps {
   allowedSortModes: TaskSortMode[]; // which modes this page offers
   onSortChange: (mode: TaskSortMode) => void;
   projectNameFor: (task: Task) => string | null;
+  tagFor: (task: Task) => PriorityTag | null;
   emptyNote: string;
   onToggle: (taskId: string) => void;
   onMove: (dayTasks: Task[], taskId: string, direction: "up" | "down") => void;
@@ -41,6 +43,7 @@ export function MainView({
   allowedSortModes,
   onSortChange,
   projectNameFor,
+  tagFor,
   emptyNote,
   onToggle,
   onMove,
@@ -78,6 +81,7 @@ export function MainView({
               tasks={group.tasks}
               reorderable={reorderable}
               projectNameFor={projectNameFor}
+              tagFor={tagFor}
               onToggle={onToggle}
               onMove={(taskId, direction) => onMove(group.tasks, taskId, direction)}
             />
