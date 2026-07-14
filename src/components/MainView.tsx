@@ -22,6 +22,7 @@ interface MainViewProps {
   showCompletedToggle: boolean; // only in a project view (where completed tasks matter)
   showSort: boolean; // sort control only on the date pages (projects stay manual)
   sortMode: TaskSortMode;
+  allowedSortModes: TaskSortMode[]; // which modes this page offers
   onSortChange: (mode: TaskSortMode) => void;
   projectNameFor: (task: Task) => string | null;
   emptyNote: string;
@@ -37,6 +38,7 @@ export function MainView({
   showCompletedToggle,
   showSort,
   sortMode,
+  allowedSortModes,
   onSortChange,
   projectNameFor,
   emptyNote,
@@ -57,7 +59,9 @@ export function MainView({
               Show completed
             </span>
           )}
-          {showSort && <SortMenu mode={sortMode} onChange={onSortChange} />}
+          {showSort && (
+            <SortMenu mode={sortMode} allowed={allowedSortModes} onChange={onSortChange} />
+          )}
         </div>
       </header>
 

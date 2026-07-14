@@ -9,18 +9,25 @@ export type TaskSortMode = "manual" | "deadline" | "urgency" | "importance";
 const byManual = (a: Task, b: Task): number =>
   a.position - b.position || a.createdAt.localeCompare(b.createdAt);
 
+// Secondary keys (decided 2026-07-14): within one urgency level, the more
+// important task wins, and vice-versa — so a group of equally-urgent tasks
+// reads in importance order (and equally-important tasks in urgency order).
+const byImportanceThenManual = (a: Task, b: Task): number =>
+  b.importance - a.importance || byManual(a, b);
+
 const byDeadline = (a: Task, b: Task): number => {
-  if (a.dueAt === null && b.dueAt === null) return byManual(a, b);
+  if (a.dueAt === null && b.dueAt === null) return byImportanceThenManual(a, b);
   if (a.dueAt === null) return 1; // no deadline sinks to the bottom
   if (b.dueAt === null) return -1;
-  return a.dueAt.localeCompare(b.dueAt) || byManual(a, b);
+  // same deadline → order by importance (urgency already tracks the deadline)
+  return a.dueAt.localeCompare(b.dueAt) || byImportanceThenManual(a, b);
 };
 
 const comparators: Record<TaskSortMode, (a: Task, b: Task) => number> = {
   manual: byManual,
   deadline: byDeadline,
-  urgency: (a, b) => b.urgency - a.urgency || byManual(a, b),
-  importance: (a, b) => b.importance - a.importance || byManual(a, b),
+  urgency: (a, b) => b.urgency - a.urgency || byImportanceThenManual(a, b),
+  importance: (a, b) => b.importance - a.importance || b.urgency - a.urgency || byManual(a, b),
 };
 
 // Returns a new ordered list; the input array is never mutated.

@@ -62,6 +62,48 @@ describe("sortTasks — a lens, never a rearrangement", () => {
     expect(titles(sortTasks(input, "importance"))).toEqual(["Major", "Minor"]);
   });
 
+  it("urgency mode breaks ties by importance (more important first)", () => {
+    const input = [
+      makeTask({ title: "Urgent, minor", position: 0, urgency: 3, importance: 1 }),
+      makeTask({ title: "Urgent, major", position: 1, urgency: 3, importance: 3 }),
+      makeTask({ title: "Calm", position: 2, urgency: 0, importance: 3 }),
+    ];
+
+    expect(titles(sortTasks(input, "urgency"))).toEqual([
+      "Urgent, major",
+      "Urgent, minor",
+      "Calm",
+    ]);
+  });
+
+  it("importance mode breaks ties by urgency (more urgent first)", () => {
+    const input = [
+      makeTask({ title: "Major, calm", position: 0, importance: 3, urgency: 0 }),
+      makeTask({ title: "Major, urgent", position: 1, importance: 3, urgency: 3 }),
+      makeTask({ title: "Minor", position: 2, importance: 1, urgency: 3 }),
+    ];
+
+    expect(titles(sortTasks(input, "importance"))).toEqual([
+      "Major, urgent",
+      "Major, calm",
+      "Minor",
+    ]);
+  });
+
+  it("deadline mode breaks same-day ties by importance", () => {
+    const input = [
+      makeTask({ title: "Due Fri, minor", position: 0, dueAt: "2026-07-17", importance: 0 }),
+      makeTask({ title: "Due Fri, major", position: 1, dueAt: "2026-07-17", importance: 3 }),
+      makeTask({ title: "Due Thu", position: 2, dueAt: "2026-07-16", importance: 0 }),
+    ];
+
+    expect(titles(sortTasks(input, "deadline"))).toEqual([
+      "Due Thu",
+      "Due Fri, major",
+      "Due Fri, minor",
+    ]);
+  });
+
   it("ties keep the user's manual order", () => {
     const input = [
       makeTask({ title: "Arranged second", position: 1, urgency: 3 }),

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { groupTasksByDay } from "../core/groupByDay";
+import { groupTasksByLevel } from "../core/groupByLevel";
 import { groupTasksBySection } from "../core/groupBySection";
 import { findReorderSwap } from "../core/reorder";
 import { sortTasks, type TaskSortMode } from "../core/sortTasks";
@@ -33,6 +34,18 @@ function bootstrapOnce(): Promise<Project[]> {
   }
   return bootstrap;
 }
+
+// Sort modes each page offers. Deadline only makes sense where tasks span
+// several days — the Scheduled page — so the single-day pages omit it.
+const PAGE_SORT_MODES: TaskSortMode[] = ["urgency", "importance"];
+const SCHEDULED_SORT_MODES: TaskSortMode[] = ["urgency", "importance", "deadline"];
+
+// Heading text for a priority level (3..0) when grouping by that dial.
+const URGENCY_LABELS: Record<number, string> = { 3: "Urgent", 2: "High", 1: "Medium", 0: "Low" };
+const IMPORTANCE_LABELS: Record<number, string> = { 3: "Critical", 2: "High", 1: "Medium", 0: "Low" };
+
+// The day a task is due, trimmed to "YYYY-MM-DD" (dueAt may carry a time).
+const dueDay = (t: Task): string | null => (t.dueAt ? t.dueAt.slice(0, 10) : null);
 
 function initialTheme(): "light" | "dark" {
   const saved = localStorage.getItem("plannea-theme");
@@ -104,8 +117,17 @@ export function App() {
     }
   }, [tasks, view, today, tomorrow]);
 
-  // Build the groups to render: by SECTION inside a project, by DAY on the
-  // date pages. Both resolve to the same RenderGroup shape.
+  // Which sort modes the current page offers, and the one actually in effect
+  // (if the saved mode isn't offered here — e.g. Deadline on Today — fall back
+  // to urgency, so navigating between pages never leaves a dead mode selected).
+  const allowedSortModes =
+    view.kind === "page" && view.page === "scheduled" ? SCHEDULED_SORT_MODES : PAGE_SORT_MODES;
+  const effectiveSortMode = allowedSortModes.includes(sortMode) ? sortMode : "urgency";
+
+  // Build the groups to render. Project → by SECTION. Pages → filter → SORT →
+  // group, where the SORT mode also decides the grouping: urgency/importance
+  // group by that level (secondary dial orders within), deadline groups by due
+  // day. Each group's tasks stay in the sorted order (group never re-sorts).
   const groups = useMemo<RenderGroup[]>(() => {
     if (view.kind === "project") {
       const projectSections = sections.filter((s) => s.projectId === view.projectId);
@@ -121,22 +143,31 @@ export function App() {
         tasks: bucket.tasks,
       }));
     }
-    // Single-day pages (Today/Tomorrow/Unscheduled) don't repeat the day in a
-    // heading — the page title already says it; Scheduled spans days, so it does.
-    const showHeadings = view.page === "scheduled";
-    // filter → SORT → group: pages open in a chosen order (default urgency),
-    // then split into day buckets so each bucket is internally sorted.
-    return groupTasksByDay(sortTasks(viewTasks, sortMode)).map((bucket) => {
-      const { text, isToday } = formatDayHeading(bucket.day);
-      return {
-        key: bucket.day ?? "__unscheduled",
-        heading: text,
-        showHeading: showHeadings,
-        accent: isToday,
-        tasks: bucket.tasks,
-      };
-    });
-  }, [view, viewTasks, sections, sortMode]);
+
+    const sorted = sortTasks(viewTasks, effectiveSortMode);
+
+    if (effectiveSortMode === "deadline") {
+      // Group by the day each task is due; "No deadline" collects the rest, last.
+      return groupTasksByDay(sorted, dueDay).map((bucket) => {
+        if (bucket.day === null) {
+          return { key: "__no_deadline", heading: "No deadline", showHeading: true, accent: false, tasks: bucket.tasks };
+        }
+        const { text, isToday } = formatDayHeading(bucket.day);
+        return { key: bucket.day, heading: text, showHeading: true, accent: isToday, tasks: bucket.tasks };
+      });
+    }
+
+    // urgency or importance → group by that level, highest first.
+    const dimension = effectiveSortMode === "importance" ? "importance" : "urgency";
+    const labels = dimension === "importance" ? IMPORTANCE_LABELS : URGENCY_LABELS;
+    return groupTasksByLevel(sorted, dimension).map((bucket) => ({
+      key: `${dimension}-${bucket.level}`,
+      heading: labels[bucket.level] ?? `Level ${bucket.level}`,
+      showHeading: true,
+      accent: false,
+      tasks: bucket.tasks,
+    }));
+  }, [view, viewTasks, sections, effectiveSortMode]);
 
   const counts = useMemo<Record<Page, number>>(
     () => ({
@@ -207,7 +238,8 @@ export function App() {
         reorderable={view.kind === "project"} // manual order only within a project
         showCompletedToggle={view.kind === "project"}
         showSort={view.kind === "page"} // sorting is a page lens; projects stay manual
-        sortMode={sortMode}
+        sortMode={effectiveSortMode}
+        allowedSortModes={allowedSortModes}
         onSortChange={setSortMode}
         projectNameFor={projectNameFor}
         emptyNote={emptyNote}

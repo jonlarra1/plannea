@@ -1,26 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import type { TaskSortMode } from "../core/sortTasks";
 
-// The sort modes offered on the date pages (manual order is meaningless across
-// projects, so it's not offered here). Order = how they read in the menu.
-const OPTIONS: { value: TaskSortMode; label: string }[] = [
-  { value: "urgency", label: "Urgency" },
-  { value: "importance", label: "Importance" },
-  { value: "deadline", label: "Deadline" },
-];
+// Human labels for the sort modes. (Manual isn't offered on the pages — it's
+// meaningless across projects — but a label is here for completeness.)
+const LABELS: Record<TaskSortMode, string> = {
+  manual: "Manual",
+  urgency: "Urgency",
+  importance: "Importance",
+  deadline: "Deadline",
+};
 
 interface SortMenuProps {
   mode: TaskSortMode;
+  allowed: TaskSortMode[]; // which modes this page offers (Deadline only on Scheduled)
   onChange: (mode: TaskSortMode) => void;
 }
 
 // A small custom dropdown. We render our own list (not a native <select>)
 // because on Linux/WebKitGTK the native popup follows the system GTK theme and
 // ignores our CSS — this one always matches the app's light/dark theme.
-export function SortMenu({ mode, onChange }: SortMenuProps) {
+export function SortMenu({ mode, allowed, onChange }: SortMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const current = OPTIONS.find((o) => o.value === mode) ?? OPTIONS[0];
 
   // Close when clicking outside or pressing Escape.
   useEffect(() => {
@@ -49,22 +50,22 @@ export function SortMenu({ mode, onChange }: SortMenuProps) {
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
-        {current.label}
+        {LABELS[mode]}
         <span className="sort-menu__chevron" aria-hidden="true" />
       </button>
       {open && (
         <ul className="sort-menu__list" role="listbox" aria-label="Sort tasks">
-          {OPTIONS.map((o) => (
-            <li key={o.value} role="option" aria-selected={o.value === mode}>
+          {allowed.map((value) => (
+            <li key={value} role="option" aria-selected={value === mode}>
               <button
                 type="button"
-                className={`sort-menu__option${o.value === mode ? " is-active" : ""}`}
+                className={`sort-menu__option${value === mode ? " is-active" : ""}`}
                 onClick={() => {
-                  onChange(o.value);
+                  onChange(value);
                   setOpen(false);
                 }}
               >
-                {o.label}
+                {LABELS[value]}
               </button>
             </li>
           ))}
