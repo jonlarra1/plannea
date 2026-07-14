@@ -12,6 +12,7 @@ export interface RenderGroup {
   heading: string;
   showHeading: boolean;
   accent: boolean;
+  level?: number; // priority level (0..3) — colours a level-group heading
   tasks: Task[];
 }
 
@@ -78,6 +79,7 @@ export function MainView({
               heading={group.heading}
               showHeading={group.showHeading}
               accent={group.accent}
+              level={group.level}
               tasks={group.tasks}
               reorderable={reorderable}
               projectNameFor={projectNameFor}

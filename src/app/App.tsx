@@ -166,6 +166,7 @@ export function App() {
       heading: labels[bucket.level] ?? `Level ${bucket.level}`,
       showHeading: true,
       accent: false,
+      level: bucket.level,
       tasks: bucket.tasks,
     }));
   }, [view, viewTasks, sections, effectiveSortMode]);
@@ -223,17 +224,15 @@ export function App() {
 
   // The secondary-sort dial as a tag: when a page groups by urgency (or by due
   // day, whose in-group order is importance) show the importance level; when it
-  // groups by importance show the urgency level. Only the elevated levels (>0)
-  // get a tag, to keep the baseline quiet. No tag in the project view.
+  // groups by importance show the urgency level. Every level (0..3) is tagged
+  // so the in-group order reads clearly. No tag in the project view.
   const tagFor = useCallback(
     (task: Task): PriorityTag | null => {
       if (view.kind !== "page") return null;
       if (effectiveSortMode === "importance") {
-        return task.urgency > 0 ? { kind: "urgency", label: URGENCY_LABELS[task.urgency] } : null;
+        return { kind: "urgency", level: task.urgency, label: URGENCY_LABELS[task.urgency] };
       }
-      return task.importance > 0
-        ? { kind: "importance", label: IMPORTANCE_LABELS[task.importance] }
-        : null;
+      return { kind: "importance", level: task.importance, label: IMPORTANCE_LABELS[task.importance] };
     },
     [view, effectiveSortMode],
   );

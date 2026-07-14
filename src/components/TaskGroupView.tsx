@@ -8,6 +8,7 @@ interface TaskGroupViewProps {
   heading: string;
   showHeading: boolean;
   accent: boolean; // e.g. "today" — tints the heading
+  level?: number; // priority level (0..3) — colours a level-group heading
   tasks: Task[];
   reorderable: boolean;
   projectNameFor: (task: Task) => string | null;
@@ -20,6 +21,7 @@ export function TaskGroupView({
   heading,
   showHeading,
   accent,
+  level,
   tasks,
   reorderable,
   projectNameFor,
@@ -30,7 +32,7 @@ export function TaskGroupView({
   return (
     <section className="day">
       {showHeading && (
-        <h3 className={`day__heading ${accent ? "day__heading--today" : ""}`}>
+        <h3 className={`day__heading ${accent ? "day__heading--today" : ""}`} data-level={level}>
           <span className="day__dot" />
           {heading}
         </h3>

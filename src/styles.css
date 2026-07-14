@@ -17,8 +17,6 @@
   --accent: #17897b;              /* calm teal — "today" + actions */
   --accent-strong: #0f6f63;
   --accent-soft: rgba(23, 137, 123, 0.10);
-  --warn-strong: #b45309;         /* warm amber — urgency tag */
-  --warn-soft: rgba(180, 83, 9, 0.12);
 
   --radius: 8px;
   --radius-sm: 6px;
@@ -43,8 +41,6 @@
   --accent: #35a594;
   --accent-strong: #47b8a6;
   --accent-soft: rgba(53, 165, 148, 0.14);
-  --warn-strong: #f0b429;
-  --warn-soft: rgba(240, 180, 41, 0.16);
 
   color-scheme: dark;
 }
@@ -399,6 +395,17 @@ button {
   background: var(--accent);
 }
 
+/* level-group headings take the same per-level colour as the task tags */
+.day__heading[data-level="0"] { color: #15803d; }
+.day__heading[data-level="1"] { color: #a16207; }
+.day__heading[data-level="2"] { color: #b91c1c; }
+.day__heading[data-level="3"] { color: #16191f; }
+
+:root[data-theme="dark"] .day__heading[data-level="0"] { color: #4ade80; }
+:root[data-theme="dark"] .day__heading[data-level="1"] { color: #facc15; }
+:root[data-theme="dark"] .day__heading[data-level="2"] { color: #f87171; }
+:root[data-theme="dark"] .day__heading[data-level="3"] { color: #f0f2f5; }
+
 .day__tasks {
   list-style: none;
   margin: 0;
@@ -471,9 +478,12 @@ button {
   white-space: nowrap;
 }
 
-/* secondary-sort tag — colour signals which dial (importance vs urgency) */
+/* secondary-sort tag — emoji names the dial, colour shows the level */
 .task__tag {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
   font-weight: 600;
   border-radius: 999px;
@@ -481,15 +491,17 @@ button {
   white-space: nowrap;
 }
 
-.task__tag--importance {
-  color: var(--accent-strong);
-  background: var(--accent-soft);
-}
+/* one distinct colour per level (emoji marks the dial): Low = green,
+   Medium = yellow, High = red, Critical = near-black */
+.task__tag[data-level="0"] { color: #15803d; background: rgba(34, 197, 94, 0.14); }
+.task__tag[data-level="1"] { color: #a16207; background: rgba(234, 179, 8, 0.20); }
+.task__tag[data-level="2"] { color: #b91c1c; background: rgba(220, 38, 38, 0.13); }
+.task__tag[data-level="3"] { color: #16191f; background: rgba(30, 36, 48, 0.11); }
 
-.task__tag--urgency {
-  color: var(--warn-strong);
-  background: var(--warn-soft);
-}
+:root[data-theme="dark"] .task__tag[data-level="0"] { color: #4ade80; background: rgba(74, 222, 128, 0.16); }
+:root[data-theme="dark"] .task__tag[data-level="1"] { color: #facc15; background: rgba(250, 204, 21, 0.16); }
+:root[data-theme="dark"] .task__tag[data-level="2"] { color: #f87171; background: rgba(248, 113, 113, 0.16); }
+:root[data-theme="dark"] .task__tag[data-level="3"] { color: #f0f2f5; background: rgba(255, 255, 255, 0.12); }
 
 .task__actions {
   display: flex;

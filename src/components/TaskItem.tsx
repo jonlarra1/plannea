@@ -3,6 +3,7 @@
 // we surface that other dial as a tag. `kind` picks its colour/tooltip.
 export interface PriorityTag {
   kind: "urgency" | "importance";
+  level: number; // 1..3 — drives the shade (higher = stronger)
   label: string;
 }
 
@@ -38,6 +39,7 @@ export function TaskItem({
       {tag && (
         <span
           className={`task__tag task__tag--${tag.kind}`}
+          data-level={tag.level}
           title={`${tag.kind === "urgency" ? "Urgency" : "Importance"}: ${tag.label}`}
         >
           {tag.label}

@@ -31,7 +31,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   ├── SortMenu.tsx         # custom sort dropdown for the date pages (theme-following; native select can't be on WebKitGTK)
 │   │   ├── TaskGroupView.tsx    # one group (day OR section) heading + tasks (+ "add task" placeholder)
 │   │   ├── Sidebar.tsx          # page-based nav (Pages + Projects groups) + theme toggle
-│   │   └── TaskItem.tsx         # one task row (checkbox, up/down, "⋯" placeholder)
+│   │   └── TaskItem.tsx         # one task row (checkbox, up/down, "⋯" placeholder, color-by-level priority tag)
 │   ├── core/                    # pure logic, no React/Tauri
 │   │   ├── frontmatter.ts       # YAML frontmatter split/join (legacy markdown path)
 │   │   ├── groupByDay.ts        # buckets tasks by a day field (scheduled by default, or due day; undated last)
