@@ -1,5 +1,6 @@
 import type { TaskSortMode } from "../core/sortTasks";
 import type { Task } from "../core/types";
+import { SortMenu } from "./SortMenu";
 import { TaskGroupView } from "./TaskGroupView";
 
 // A group ready to render: a day bucket or a section, already resolved to a
@@ -56,20 +57,7 @@ export function MainView({
               Show completed
             </span>
           )}
-          {showSort && (
-            <label className="sort-select">
-              Sort:
-              <select
-                value={sortMode}
-                onChange={(e) => onSortChange(e.target.value as TaskSortMode)}
-                aria-label="Sort tasks"
-              >
-                <option value="urgency">Urgency</option>
-                <option value="importance">Importance</option>
-                <option value="deadline">Deadline</option>
-              </select>
-            </label>
-          )}
+          {showSort && <SortMenu mode={sortMode} onChange={onSortChange} />}
         </div>
       </header>
 

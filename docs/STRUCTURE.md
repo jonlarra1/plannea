@@ -28,6 +28,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   └── view.ts              # View/Page types + the Pages list for the sidebar
 │   ├── components/              # UI only
 │   │   ├── MainView.tsx         # main pane: page header + list of task groups
+│   │   ├── SortMenu.tsx         # custom sort dropdown for the date pages (theme-following; native select can't be on WebKitGTK)
 │   │   ├── TaskGroupView.tsx    # one group (day OR section) heading + tasks (+ "add task" placeholder)
 │   │   ├── Sidebar.tsx          # page-based nav (Pages + Projects groups) + theme toggle
 │   │   └── TaskItem.tsx         # one task row (checkbox, up/down, "⋯" placeholder)

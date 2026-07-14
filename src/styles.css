@@ -257,34 +257,103 @@ button {
   white-space: nowrap;
 }
 
-/* active sort control on the date pages (looks like a pill, but works) */
-.sort-select {
+/* sort control on the date pages — a custom dropdown (our own list, so it
+   always follows the app theme; the native select popup can't on WebKitGTK) */
+.sort-menu {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--text-dim);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 4px 8px;
-  background: var(--surface);
+  gap: 8px;
   white-space: nowrap;
 }
 
-.sort-select select {
+/* quiet label — matches the app's sentence-case, muted register */
+.sort-menu__label {
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.sort-menu__trigger {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sort-menu__trigger:hover {
+  border-color: var(--accent);
+}
+
+.sort-menu__trigger:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.sort-menu__chevron {
+  width: 6px;
+  height: 6px;
+  border-right: 1.6px solid var(--text-dim);
+  border-bottom: 1.6px solid var(--text-dim);
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.sort-menu__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 100%;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+}
+
+.sort-menu__option {
+  appearance: none;
+  display: block;
+  width: 100%;
+  text-align: left;
   border: none;
   background: transparent;
   color: var(--text);
   font-family: inherit;
   font-size: 13px;
   cursor: pointer;
-  padding: 2px 2px;
+  padding: 6px 12px;
+  border-radius: calc(var(--radius-sm) - 2px);
+  white-space: nowrap;
 }
 
-.sort-select select:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+.sort-menu__option:hover {
+  background: var(--hover);
+}
+
+/* active mode — same accent-soft treatment as the selected sidebar item */
+.sort-menu__option.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sort-menu__trigger {
+    transition: none;
+  }
 }
 
 /* --------------------------- day + task list -------------------------- */
