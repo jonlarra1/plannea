@@ -1,3 +1,4 @@
+import type { TaskSortMode } from "../core/sortTasks";
 import type { Task } from "../core/types";
 import { TaskGroupView } from "./TaskGroupView";
 
@@ -18,6 +19,9 @@ interface MainViewProps {
   groups: RenderGroup[];
   reorderable: boolean;
   showCompletedToggle: boolean; // only in a project view (where completed tasks matter)
+  showSort: boolean; // sort control only on the date pages (projects stay manual)
+  sortMode: TaskSortMode;
+  onSortChange: (mode: TaskSortMode) => void;
   projectNameFor: (task: Task) => string | null;
   emptyNote: string;
   onToggle: (taskId: string) => void;
@@ -30,6 +34,9 @@ export function MainView({
   groups,
   reorderable,
   showCompletedToggle,
+  showSort,
+  sortMode,
+  onSortChange,
   projectNameFor,
   emptyNote,
   onToggle,
@@ -42,16 +49,27 @@ export function MainView({
           <h2 className="page-header__title">{title}</h2>
           <span className="page-header__subtitle">{subtitle}</span>
         </div>
-        {/* inactive placeholders — these controls come later */}
         <div className="page-header__controls">
+          {/* still a placeholder — wired in the completed-tasks slice */}
           {showCompletedToggle && (
             <span className="pill is-placeholder" title="Show completed tasks — coming soon">
               Show completed
             </span>
           )}
-          <span className="pill is-placeholder" title="Sort — coming soon">
-            Sort: manual ⌄
-          </span>
+          {showSort && (
+            <label className="sort-select">
+              Sort:
+              <select
+                value={sortMode}
+                onChange={(e) => onSortChange(e.target.value as TaskSortMode)}
+                aria-label="Sort tasks"
+              >
+                <option value="urgency">Urgency</option>
+                <option value="importance">Importance</option>
+                <option value="deadline">Deadline</option>
+              </select>
+            </label>
+          )}
         </div>
       </header>
 

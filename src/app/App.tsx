@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { groupTasksByDay } from "../core/groupByDay";
 import { groupTasksBySection } from "../core/groupBySection";
 import { findReorderSwap } from "../core/reorder";
+import { sortTasks, type TaskSortMode } from "../core/sortTasks";
 import type { Project, Section, Task } from "../core/types";
 import { listProjects, listSections, listTasks, setTaskStatus, swapTaskPositions } from "../data/repo";
 import { seedWelcomeProjectIfEmpty } from "../data/seed";
@@ -44,6 +45,9 @@ export function App() {
   const [sections, setSections] = useState<Section[]>([]);
   const [view, setView] = useState<View>({ kind: "page", page: "today" });
   const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
+  // How the date pages order their tasks (default: most urgent first). The
+  // project view ignores this — it stays in stored manual order (see below).
+  const [sortMode, setSortMode] = useState<TaskSortMode>("urgency");
 
   // Apply + persist the theme by stamping it on the root element.
   useEffect(() => {
@@ -120,7 +124,9 @@ export function App() {
     // Single-day pages (Today/Tomorrow/Unscheduled) don't repeat the day in a
     // heading — the page title already says it; Scheduled spans days, so it does.
     const showHeadings = view.page === "scheduled";
-    return groupTasksByDay(viewTasks).map((bucket) => {
+    // filter → SORT → group: pages open in a chosen order (default urgency),
+    // then split into day buckets so each bucket is internally sorted.
+    return groupTasksByDay(sortTasks(viewTasks, sortMode)).map((bucket) => {
       const { text, isToday } = formatDayHeading(bucket.day);
       return {
         key: bucket.day ?? "__unscheduled",
@@ -130,7 +136,7 @@ export function App() {
         tasks: bucket.tasks,
       };
     });
-  }, [view, viewTasks, sections]);
+  }, [view, viewTasks, sections, sortMode]);
 
   const counts = useMemo<Record<Page, number>>(
     () => ({
@@ -200,6 +206,9 @@ export function App() {
         groups={groups}
         reorderable={view.kind === "project"} // manual order only within a project
         showCompletedToggle={view.kind === "project"}
+        showSort={view.kind === "page"} // sorting is a page lens; projects stay manual
+        sortMode={sortMode}
+        onSortChange={setSortMode}
         projectNameFor={projectNameFor}
         emptyNote={emptyNote}
         onToggle={(taskId) => void handleToggle(taskId)}
