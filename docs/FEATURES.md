@@ -61,6 +61,14 @@ wr- [ ] Security as a first-class, ongoing concern (decided 2026-07-13): least-p
 - [ ] Habit tracking
 - [ ] Streak monitoring (consecutive days doing a task)
 
+## Health tracking `(module)` (idea 2026-07-28 — the START of a bigger idea, more will be added later)
+A module for logging health events over time, so patterns become visible (how often, how bad, when). It is a LOG, not a task list: entries are timestamped records, not things to check off. Everything below is an idea, not a decided design.
+- [ ] Pain log: record a pain episode with WHERE it was (e.g. the head map for a headache: forehead / temple / behind the eye / neck…), HOW STRONG it was (an intensity scale), WHEN it started and ended, and other traits of that episode (type of pain, possible trigger, what relieved it, free-text note). Headaches are the first example, but the same log should work for any pain (back, stomach, knee…).
+- [ ] Medication log: record every time a pill is taken (which one, dose, time), so intake history and gaps are visible.
+- [ ] Contact-lens tracking: record usage — when a pair was opened / worn / thrown away — to know how long the current pair has been in use and when it is due to be replaced.
+- [ ] More health items to come: this section is deliberately open — the user will add further trackers to it later.
+- Open questions (decide before building): does this module store its own tables, or reuse the task schema? How does it relate to the habits/streaks module (which also records "did it happen today")? Does an entry ever need to appear on a date page, or does the module keep its own views? Health data is sensitive — it stays local, and no module (including MCP agent access) should expose it without a deliberate decision.
+
 ## Domain modules
 - [ ] Sports management: training, races… `(module)`
 - [ ] Shopping list, fully integrated into the app `(module)`
