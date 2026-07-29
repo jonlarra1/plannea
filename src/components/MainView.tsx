@@ -21,7 +21,10 @@ interface MainViewProps {
   subtitle: string;
   groups: RenderGroup[];
   reorderable: boolean;
-  showCompletedToggle: boolean; // only in a project view (where completed tasks matter)
+  showCompletedToggle: boolean; // only in a project view, and only if something is completed
+  showCompleted: boolean; // are those completed tasks currently revealed?
+  completedCount: number;
+  onToggleCompleted: () => void;
   showSort: boolean; // sort control only on the date pages (projects stay manual)
   sortMode: TaskSortMode;
   allowedSortModes: TaskSortMode[]; // which modes this page offers
@@ -39,6 +42,9 @@ export function MainView({
   groups,
   reorderable,
   showCompletedToggle,
+  showCompleted,
+  completedCount,
+  onToggleCompleted,
   showSort,
   sortMode,
   allowedSortModes,
@@ -57,11 +63,15 @@ export function MainView({
           <span className="page-header__subtitle">{subtitle}</span>
         </div>
         <div className="page-header__controls">
-          {/* still a placeholder — wired in the completed-tasks slice */}
           {showCompletedToggle && (
-            <span className="pill is-placeholder" title="Show completed tasks — coming soon">
-              Show completed
-            </span>
+            <button
+              type="button"
+              className={`pill pill--button ${showCompleted ? "pill--active" : ""}`}
+              aria-pressed={showCompleted}
+              onClick={onToggleCompleted}
+            >
+              {showCompleted ? "Hide completed" : `Show completed · ${completedCount}`}
+            </button>
           )}
           {showSort && (
             <SortMenu mode={sortMode} allowed={allowedSortModes} onChange={onSortChange} />

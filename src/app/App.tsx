@@ -57,6 +57,11 @@ const IMPORTANCE_LABELS: Record<number, string> = { 3: "Critical", 2: "High", 1:
 // The day a task is due, trimmed to "YYYY-MM-DD" (dueAt may carry a time).
 const dueDay = (t: Task): string | null => (t.dueAt ? t.dueAt.slice(0, 10) : null);
 
+// Whether completed tasks are revealed in the project view. One setting for all
+// projects, remembered across restarts (user decision, 2026-07-29).
+const SHOW_COMPLETED_KEY = "plannea-show-completed";
+const loadShowCompleted = (): boolean => localStorage.getItem(SHOW_COMPLETED_KEY) === "true";
+
 
 export function App() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -70,6 +75,7 @@ export function App() {
   // How the date pages order their tasks (default: most urgent first). The
   // project view ignores this — it stays in stored manual order (see below).
   const [sortMode, setSortMode] = useState<TaskSortMode>("urgency");
+  const [showCompleted, setShowCompleted] = useState<boolean>(loadShowCompleted);
 
   // Follow the OS while it changes (only matters for the "system" choice, but
   // keeping it always on means switching to system paints the right theme at once).
@@ -82,6 +88,10 @@ export function App() {
     document.documentElement.setAttribute("data-theme", theme);
     saveChoice(themeChoice);
   }, [theme, themeChoice]);
+
+  useEffect(() => {
+    localStorage.setItem(SHOW_COMPLETED_KEY, String(showCompleted));
+  }, [showCompleted]);
 
   // Reload every task + section across every project (pages need a cross-project
   // view; the project view needs that project's sections).
@@ -117,9 +127,24 @@ export function App() {
   const today = todayIso();
   const tomorrow = tomorrowIso();
 
-  // Tasks the current view selects (a date lens, or one project).
+  // Completed tasks in the project being viewed — drives the toggle's count
+  // (and whether it is offered at all).
+  const completedInProject = useMemo(
+    () =>
+      view.kind === "project"
+        ? tasks.filter((t) => t.projectId === view.projectId && t.status === "done").length
+        : 0,
+    [tasks, view],
+  );
+
+  // Tasks the current view selects (a date lens, or one project). Inside a
+  // project, completed tasks are hidden unless the toggle reveals them; the
+  // date pages always show them (a task ticked today stays visibly ticked).
   const viewTasks = useMemo(() => {
-    if (view.kind === "project") return tasks.filter((t) => t.projectId === view.projectId);
+    if (view.kind === "project") {
+      const projectTasks = tasks.filter((t) => t.projectId === view.projectId);
+      return showCompleted ? projectTasks : projectTasks.filter((t) => t.status !== "done");
+    }
     switch (view.page) {
       case "today":
         return tasks.filter((t) => t.scheduledFor === today);
@@ -130,7 +155,7 @@ export function App() {
       case "unscheduled":
         return tasks.filter((t) => t.scheduledFor === null);
     }
-  }, [tasks, view, today, tomorrow]);
+  }, [tasks, view, today, tomorrow, showCompleted]);
 
   // Which sort modes the current page offers, and the one actually in effect
   // (if the saved mode isn't offered here — e.g. Deadline on Today — fall back
@@ -267,7 +292,11 @@ export function App() {
         subtitle={subtitle}
         groups={groups}
         reorderable={view.kind === "project"} // manual order only within a project
-        showCompletedToggle={view.kind === "project"}
+        // the toggle only appears where there is something hidden to reveal
+        showCompletedToggle={view.kind === "project" && completedInProject > 0}
+        showCompleted={showCompleted}
+        completedCount={completedInProject}
+        onToggleCompleted={() => setShowCompleted((on) => !on)}
         showSort={view.kind === "page"} // sorting is a page lens; projects stay manual
         sortMode={effectiveSortMode}
         allowedSortModes={allowedSortModes}
