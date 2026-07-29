@@ -1,24 +1,33 @@
 import type { Project } from "../core/types";
 import { type Page, PAGES, type View } from "../app/view";
+kimport type { ThemeChoice } from "../app/theme";
 
 interface SidebarProps {
   view: View;
   projects: Project[];
   counts: Record<Page, number>;
-  theme: "light" | "dark";
+  themeChoice: ThemeChoice;
   onSelectPage: (page: Page) => void;
   onSelectProject: (id: string) => void;
-  onToggleTheme: () => void;
+  onCycleTheme: () => void;
 }
+
+// The theme button names the choice that is ACTIVE (not the one a click leads
+// to), so "System theme" can be shown honestly.
+const THEME_LABELS: Record<ThemeChoice, string> = {
+  light: "☀ Light theme",
+  dark: "🌙 Dark theme",
+  system: "◐ System theme", // half light / half dark — the usual "auto" mark
+};
 
 export function Sidebar({
   view,
   projects,
   counts,
-  theme,
+  themeChoice,
   onSelectPage,
   onSelectProject,
-  onToggleTheme,
+  onCycleTheme,
 }: SidebarProps) {
   const pageActive = (page: Page) => view.kind === "page" && view.page === page;
 
@@ -70,8 +79,8 @@ export function Sidebar({
       <div className="sidebar__spacer" />
 
       <div className="sidebar__footer">
-        <button className="theme-toggle" onClick={onToggleTheme}>
-          {theme === "light" ? "🌙 Dark theme" : "☀ Light theme"}
+        <button className="theme-toggle" onClick={onCycleTheme} title="Switch theme">
+          {THEME_LABELS[themeChoice]}
         </button>
       </div>
     </nav>

@@ -13,6 +13,15 @@ import type { PriorityTag } from "../components/TaskItem";
 import { formatDayHeading, longDate, todayIso, tomorrowIso } from "./dates";
 import { type Page, type View } from "./view";
 import { logError, logInfo } from "./logging";
+import {
+  loadChoice,
+  nextChoice,
+  osPrefersDark,
+  resolveTheme,
+  saveChoice,
+  watchOsTheme,
+  type ThemeChoice,
+} from "./theme";
 
 // The shell owns navigation (which page/project is shown), the loaded data
 // (all projects, their tasks and sections), and the theme. The sidebar picks a
@@ -48,26 +57,31 @@ const IMPORTANCE_LABELS: Record<number, string> = { 3: "Critical", 2: "High", 1:
 // The day a task is due, trimmed to "YYYY-MM-DD" (dueAt may carry a time).
 const dueDay = (t: Task): string | null => (t.dueAt ? t.dueAt.slice(0, 10) : null);
 
-function initialTheme(): "light" | "dark" {
-  const saved = localStorage.getItem("plannea-theme");
-  return saved === "dark" ? "dark" : "light";
-}
 
 export function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [view, setView] = useState<View>({ kind: "page", page: "today" });
-  const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
+  // The user's choice (light / dark / system) and, separately, what the OS is
+  // currently asking for — "system" is the resolution of the two.
+  const [themeChoice, setThemeChoice] = useState<ThemeChoice>(loadChoice);
+  const [prefersDark, setPrefersDark] = useState<boolean>(osPrefersDark);
   // How the date pages order their tasks (default: most urgent first). The
   // project view ignores this — it stays in stored manual order (see below).
   const [sortMode, setSortMode] = useState<TaskSortMode>("urgency");
 
-  // Apply + persist the theme by stamping it on the root element.
+  // Follow the OS while it changes (only matters for the "system" choice, but
+  // keeping it always on means switching to system paints the right theme at once).
+  useEffect(() => watchOsTheme(setPrefersDark), []);
+
+  // Apply + persist the theme. Only the RESOLVED value reaches the root element,
+  // so every style rule keeps seeing data-theme="light" or "dark".
+  const theme = resolveTheme(themeChoice, prefersDark);
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("plannea-theme", theme);
-  }, [theme]);
+    saveChoice(themeChoice);
+  }, [theme, themeChoice]);
 
   // Reload every task + section across every project (pages need a cross-project
   // view; the project view needs that project's sections).
@@ -243,10 +257,10 @@ export function App() {
         view={view}
         projects={projects}
         counts={counts}
-        theme={theme}
+        themeChoice={themeChoice}
         onSelectPage={(page) => setView({ kind: "page", page })}
         onSelectProject={(projectId) => setView({ kind: "project", projectId })}
-        onToggleTheme={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+        onCycleTheme={() => setThemeChoice(nextChoice)}
       />
       <MainView
         title={title}

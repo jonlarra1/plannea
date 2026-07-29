@@ -36,7 +36,8 @@ The left sidebar IS the navigation: a **Pages** group on top, then a **Projects*
 - [ ] Calendar view (day / week / month) — LAST, it's the most complex; also the home for external calendar sync (Proton / Google Calendar)
 - [ ] Completed tasks (refined 2026-07-13): the PRIMARY way to see them is a **"Show completed" toggle inside a project's view** — completed tasks are HIDDEN by default and the toggle reveals them, because the important tasks live in the Projects area. A broader global "Completed" view (everything finished, grouped by completion date/project) stays as a secondary idea, not the main mechanism.
 - [ ] Recurring-tasks page: manage the repeat rules (depends on the recurring-tasks design above)
-- Theme: light + dark, user-toggleable (decided 2026-07-13)
+- Theme: light + dark, user-toggleable (decided 2026-07-13). Built 2026-07-29 as a THREE-way choice cycled from the sidebar — Light / Dark / **System**, where System follows the operating system's light-or-dark setting live and is the default for a fresh install.
+- [ ] Theme polish, later (idea 2026-07-29): follow more of the system's look than just light-vs-dark (e.g. its accent colour), and let the user adjust the tone of a theme (warmer/cooler, more/less contrast) rather than only picking between two fixed palettes.
 - Look: calm, airy, spacious — the markdown/monospace "ledger" direction was rejected (2026-07-13)
 
 ## Markdown and agent integration

@@ -25,6 +25,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   ├── App.tsx              # shell; owns navigation (page/project view), loaded data, theme
 │   │   ├── dates.ts             # day-string helpers + human date labels
 │   │   ├── logging.ts           # frontend half of logging: log* wrappers + uncaught-error hooks
+│   │   ├── theme.ts             # light/dark/system choice: pure rules + localStorage & OS-preference wrappers
 │   │   └── view.ts              # View/Page types + the Pages list for the sidebar
 │   ├── components/              # UI only
 │   │   ├── MainView.tsx         # main pane: page header + list of task groups
@@ -75,6 +76,7 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   ├── reorder.test.ts          # specs for the neighbor-swap reorder logic
 │   ├── repo.test.ts             # data-layer behavior specs (roadmap 2.2: projects, tasks, sections)
 │   ├── sortTasks.test.ts        # specs for the pure task-ordering lens
+│   ├── theme.test.ts            # specs for the theme choice rules (resolve / cycle / default)
 │   └── tsconfig.json            # editor types for the tests folder (Node APIs)
 ├── .vscode/
 │   └── extensions.json
