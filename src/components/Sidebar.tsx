@@ -1,6 +1,6 @@
 import type { Project } from "../core/types";
 import { type Page, PAGES, type View } from "../app/view";
-kimport type { ThemeChoice } from "../app/theme";
+import type { ThemeChoice } from "../app/theme";
 
 interface SidebarProps {
   view: View;
