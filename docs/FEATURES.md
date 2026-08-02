@@ -39,6 +39,7 @@ The left sidebar IS the navigation: a **Pages** group on top, then a **Projects*
 - Theme: light + dark, user-toggleable (decided 2026-07-13). Built 2026-07-29 as a THREE-way choice cycled from the sidebar — Light / Dark / **System**, where System follows the operating system's light-or-dark setting live and is the default for a fresh install.
 - [ ] Theme polish, later (idea 2026-07-29): follow more of the system's look than just light-vs-dark (e.g. its accent colour), and let the user adjust the tone of a theme (warmer/cooler, more/less contrast) rather than only picking between two fixed palettes.
 - Look: calm, airy, spacious — the markdown/monospace "ledger" direction was rejected (2026-07-13)
+- [ ] Align the per-task labels into COLUMNS (idea 2026-07-29): today the project chip and the priority tag simply trail the task title, so titles of different lengths push them to different positions and the list reads as messy. Make the task row a light table — a title column, then the labels lining up down the page. Pure layout work, no logic.
 
 ## Markdown and agent integration
 - [ ] Everything in markdown format
@@ -55,6 +56,7 @@ wr- [ ] Security as a first-class, ongoing concern (decided 2026-07-13): least-p
 - [ ] Pomodoro / stopwatch
 
 ## Calendar and planning
+- [ ] Auto-arrange a task into a TIME SLOT (idea 2026-07-29): when a task is given a due date, the app can place it by itself at a concrete moment before that deadline, instead of leaving it as a loose "some time that day" item — and URGENCY drives the placement: the more urgent, the earlier and better the slot it gets. This needs a new piece of information the schema does NOT have yet: WHEN IN THE DAY the task should happen (the preferred moment — morning / afternoon / evening, or a fixed hour). Open questions before building: is the preferred moment a coarse band or a real time, and is it a hard constraint or only a hint; does the app WRITE the chosen slot onto the task or only PROPOSE it for the user to accept; what happens when two tasks want the same slot (does urgency win, does the other get pushed); and does it take existing calendar events into account, which ties it to the calendar view and external sync below.
 - [ ] Synced calendar (Proton / Google Calendar / self-hosted)
 - [ ] Weather app integration, to plan based on the weather
 
