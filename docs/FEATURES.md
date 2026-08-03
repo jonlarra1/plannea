@@ -5,7 +5,8 @@ checklist; it is not linked to the code. `(module)` marks items already decided
 to be later modules, not part of the core MVP.
 
 ## Core: tasks and projects
-- [ ] Add/create tasks (and projects) directly from the app UI — the basic capture flow (scheduled: ROADMAP 2.5; the data layer already supports it)
+- [x] Add/create tasks (and projects) directly from the app UI — the basic capture flow. Projects: "+ new project" in the sidebar opens a small dialog (2026-08-03). Tasks: a "+ add task" row that turns into a text field where the task will appear and stays open for the next one — inside a project it sits under each section, on the date pages it sits once at the end and schedules the task for that day (2026-08-03).
+- [x] Inbox (decided 2026-08-03): a default project, always present, where tasks land when they belong to no project in particular — "some things just have to be done". It is an ordinary project with a fixed id (so it survives being renamed) and it sits at the top of the project list. Everything else — moving a task out of it, choosing a different target — is later work.
 - [ ] Sections for different projects / internal sections
 - [ ] Execution order of tasks within a day
 - [ ] Subtasks nested inside other tasks
@@ -47,10 +48,10 @@ The left sidebar IS the navigation: a **Pages** group on top, then a **Projects*
 - [ ] Access for Claude Code specifically (the MCP module makes plannea usable from any MCP-capable agent: Claude Code, claude.ai, others)
 
 ## Architecture and platform
-- [ ] Modular app, so capabilities can be added
+- [ ] Modular app, so capabilities can be added. **Modules are literally separate packages that the user installs or does not install** (decided 2026-08-03) — not features hidden behind a settings switch. Someone who only wants tasks installs nothing extra and carries none of the pomodoro, health, shopping or sport code; someone who wants the health tracker installs that package and the app grows a new surface. Each package brings its own screens, its own stored data if it needs any, and its own permissions, and it can be removed again. The core app must therefore work completely on its own, with zero modules installed. Open questions to settle when the module system is designed (ROADMAP Phase 4): where packages come from (bundled with the app but not activated, or fetched from somewhere), what a module is allowed to touch (its own tables only? the task data through `repo.ts`?), what happens to a module's data when it is uninstalled (kept or deleted — the user decides), and the security boundary, since installing a package means running someone's code inside the app.
 - [ ] Zoom in the desktop app
 - [ ] Support for widgets
-wr- [ ] Security as a first-class, ongoing concern (decided 2026-07-13): least-privilege Tauri capabilities, strict CSP, always-parameterized SQL, safe rendering of user markdown, secure secret storage for future calendar-sync OAuth, and clear boundaries on MCP agent access — a light pass at every phase checkpoint + a deeper audit before each release. Full detail in ROADMAP "Security".
+- [ ] Security as a first-class, ongoing concern (decided 2026-07-13): least-privilege Tauri capabilities, strict CSP, always-parameterized SQL, safe rendering of user markdown, secure secret storage for future calendar-sync OAuth, and clear boundaries on MCP agent access — a light pass at every phase checkpoint + a deeper audit before each release. Full detail in ROADMAP "Security".
 
 ## Time and productivity
 - [ ] Pomodoro / stopwatch

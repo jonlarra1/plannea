@@ -1,5 +1,6 @@
 import type { TaskSortMode } from "../core/sortTasks";
 import type { Task } from "../core/types";
+import { AddTaskRow } from "./AddTaskRow";
 import { SortMenu } from "./SortMenu";
 import { TaskGroupView } from "./TaskGroupView";
 import type { PriorityTag } from "./TaskItem";
@@ -13,6 +14,7 @@ export interface RenderGroup {
   showHeading: boolean;
   accent: boolean;
   level?: number; // priority level (0..3) — colours a level-group heading
+  sectionId?: string | null; // set on a project's section groups; a task added here joins that section
   tasks: Task[];
 }
 
@@ -32,6 +34,12 @@ interface MainViewProps {
   projectNameFor: (task: Task) => string | null;
   tagFor: (task: Task) => PriorityTag | null;
   emptyNote: string;
+  // Where the add row appears: inside each group (a project's sections), at the
+  // end of the page (the date pages, and an empty project), or nowhere at all
+  // (Scheduled — see the roadmap: it needs a date field first).
+  addTaskInGroups: boolean;
+  addTaskAtEnd: boolean;
+  onAddTask: (title: string, sectionId: string | null) => Promise<void>;
   onToggle: (taskId: string) => void;
   onMove: (dayTasks: Task[], taskId: string, direction: "up" | "down") => void;
 }
@@ -52,6 +60,9 @@ export function MainView({
   projectNameFor,
   tagFor,
   emptyNote,
+  addTaskInGroups,
+  addTaskAtEnd,
+  onAddTask,
   onToggle,
   onMove,
 }: MainViewProps) {
@@ -96,8 +107,18 @@ export function MainView({
               tagFor={tagFor}
               onToggle={onToggle}
               onMove={(taskId, direction) => onMove(group.tasks, taskId, direction)}
+              onAddTask={
+                addTaskInGroups
+                  ? (title) => onAddTask(title, group.sectionId ?? null)
+                  : undefined
+              }
             />
           ))
+        )}
+        {addTaskAtEnd && (
+          <ul className="day__tasks">
+            <AddTaskRow onAdd={(title) => onAddTask(title, null)} />
+          </ul>
         )}
       </div>
     </main>

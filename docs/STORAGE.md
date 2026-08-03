@@ -104,6 +104,10 @@ CREATE INDEX idx_projects_parent  ON projects(parent_id);
 
 `completed_at` is the timestamp set when a task is marked done — it powers the "stay checked only for the completion day, then auto-archive" feature.
 
+The **Inbox** (decided 2026-08-03) is not a fourth state or a new table — it is an ordinary project row with the fixed id `inbox` and position `-1`, created on start if missing (`ensureInboxProject`). It is where a task goes when the user adds one from a date page, i.e. when it belongs to no project in particular. The fixed id is what identifies it, so renaming it changes nothing; deleting it simply means it is recreated on the next start. Its `-1` position is what floats it above the user's own projects in the normal `ORDER BY position` listing.
+
+Project names and task titles are stored **trimmed** and can never be empty — the data layer refuses blank text (`requireText`, decided 2026-08-03), the same second-line-of-defence idea as the 0–3 priority guard.
+
 Projects have three states (decided 2026-07-07): **active** (in the main list), **completed** (`completed_at` set — finished, listed separately as a "trophy shelf", reversible, independent of any deadline), and **archived** (`is_archived` — hidden without ceremony, e.g. paused/abandoned). Only deleting destroys data; delete cascades to the project's sections, tasks, and sub-projects.
 
 `position` is the order of an item within its immediate group (its parent, its section, or its day) — it replaces the fragile reliance on line order.

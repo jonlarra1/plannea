@@ -1,4 +1,5 @@
 import type { Task } from "../core/types";
+import { AddTaskRow } from "./AddTaskRow";
 import { TaskItem, type PriorityTag } from "./TaskItem";
 
 // A generic group of tasks under a heading — used for both a day bucket (on the
@@ -15,6 +16,9 @@ interface TaskGroupViewProps {
   tagFor: (task: Task) => PriorityTag | null;
   onToggle: (taskId: string) => void;
   onMove: (taskId: string, direction: "up" | "down") => void;
+  // given only where adding belongs INSIDE the group — i.e. a project's
+  // sections. The date pages carry a single add row at the end instead.
+  onAddTask?: (title: string) => Promise<void>;
 }
 
 export function TaskGroupView({
@@ -28,6 +32,7 @@ export function TaskGroupView({
   tagFor,
   onToggle,
   onMove,
+  onAddTask,
 }: TaskGroupViewProps) {
   return (
     <section className="day">
@@ -53,12 +58,7 @@ export function TaskGroupView({
             onMoveDown={() => onMove(task.id, "down")}
           />
         ))}
-        {/* inactive placeholder — adding tasks comes in roadmap 2.5 */}
-        <li>
-          <button className="add-task is-placeholder" title="Add task — coming soon">
-            <span className="add-task__plus">+</span> add task
-          </button>
-        </li>
+        {onAddTask && <AddTaskRow onAdd={onAddTask} />}
       </ul>
     </section>
   );

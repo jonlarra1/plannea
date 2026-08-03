@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { addRowPlacement, newTaskTarget } from "../core/addTask";
 import { groupTasksByDay } from "../core/groupByDay";
 import { groupTasksByLevel } from "../core/groupByLevel";
 import { groupTasksBySection } from "../core/groupBySection";
@@ -7,6 +8,9 @@ import { sortTasks, type TaskSortMode } from "../core/sortTasks";
 import type { Project, Section, Task } from "../core/types";
 import {
   createProject,
+  createTask,
+  ensureInboxProject,
+  INBOX_PROJECT_ID,
   listProjects,
   listSections,
   listTasks,
@@ -46,7 +50,8 @@ let bootstrap: Promise<Project[]> | null = null;
 function bootstrapOnce(): Promise<Project[]> {
   if (!bootstrap) {
     bootstrap = (async () => {
-      await seedWelcomeProjectIfEmpty();
+      await seedWelcomeProjectIfEmpty(); // must run first: it only seeds an EMPTY database
+      await ensureInboxProject();
       return listProjects();
     })();
   }
@@ -189,6 +194,7 @@ export function App() {
             : projectSections.find((s) => s.id === bucket.sectionId)?.name ?? "Section",
         showHeading: bucket.sectionId !== null,
         accent: false,
+        sectionId: bucket.sectionId, // a task added under this heading joins that section
         tasks: bucket.tasks,
       }));
     }
@@ -257,6 +263,26 @@ export function App() {
     setNewProjectOpen(false);
   }
 
+  // Add a task where the current view says it belongs — the rule itself lives
+  // in core/addTask.ts, tested there.
+  async function handleAddTask(title: string, sectionId: string | null): Promise<void> {
+    const target = newTaskTarget(view, sectionId, {
+      today,
+      tomorrow,
+      inboxProjectId: INBOX_PROJECT_ID,
+    });
+    if (!target) return; // this view doesn't offer adding (Scheduled)
+    try {
+      await createTask({ ...target, title });
+      const loaded = await listProjects(); // the Inbox may have just become visible
+      setProjects(loaded);
+      await reloadData(loaded);
+    } catch (err) {
+      void logError(`failed to add task: ${String(err)}`);
+      throw err; // the row keeps what was typed
+    }
+  }
+
   async function handleMove(
     dayTasks: Task[],
     taskId: string,
@@ -274,6 +300,9 @@ export function App() {
 
   // Header text + empty message for the current view.
   const { title, subtitle, emptyNote } = describeView(view, projects, today, tomorrow, counts);
+
+  // Where the "+ add task" row is drawn on this view.
+  const addRow = addRowPlacement(view, groups.length);
 
   // On the cross-project pages, label each task with its project; inside a
   // single project's view that label is redundant, so show none.
@@ -331,6 +360,9 @@ export function App() {
         projectNameFor={projectNameFor}
         tagFor={tagFor}
         emptyNote={emptyNote}
+        addTaskInGroups={addRow === "in-groups"}
+        addTaskAtEnd={addRow === "at-end"}
+        onAddTask={handleAddTask}
         onToggle={(taskId) => void handleToggle(taskId)}
         onMove={(dayTasks, taskId, direction) => void handleMove(dayTasks, taskId, direction)}
       />

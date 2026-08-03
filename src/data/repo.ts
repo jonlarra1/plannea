@@ -20,13 +20,13 @@ function assertPriorityLevel(name: "importance" | "urgency", value: number): voi
   }
 }
 
-// A project must have a real name. The dialog already blocks an empty field, so
-// a blank name arriving here means a bug in calling code (or, later, an agent
-// through the MCP module) — refuse it instead of storing a nameless row.
-// Returns the trimmed name, which is what gets stored.
-function requireName(name: string): string {
-  const trimmed = name.trim();
-  if (trimmed === "") throw new Error("project name cannot be empty");
+// A project name / task title must be real text. The UI already blocks an empty
+// field, so a blank one arriving here means a bug in calling code (or, later, an
+// agent through the MCP module) — refuse it instead of storing a nameless row.
+// Returns the trimmed text, which is what gets stored.
+function requireText(label: "project name" | "task title", value: string): string {
+  const trimmed = value.trim();
+  if (trimmed === "") throw new Error(`${label} cannot be empty`);
   return trimmed;
 }
 
@@ -160,7 +160,7 @@ export async function createProject(input: {
   description?: string | null;
   parentId?: string | null;
 }): Promise<Project> {
-  const name = requireName(input.name);
+  const name = requireText("project name", input.name);
   const db = await getDb();
   const ts = nowIso();
   const project: Project = {
@@ -195,6 +195,34 @@ export async function createProject(input: {
     ],
   );
   return project;
+}
+
+// Where a task goes when it belongs to no project in particular (decided with
+// the user 2026-08-03). It is an ordinary project with a FIXED id, so it needs
+// no schema change and stays recognisable after the user renames it. Its
+// position is -1 so it sorts above the projects the user creates.
+export const INBOX_PROJECT_ID = "inbox";
+
+// Creates the Inbox if it isn't there yet; otherwise returns the existing one
+// untouched. Safe to call on every start (and twice, under StrictMode).
+export async function ensureInboxProject(): Promise<Project> {
+  const db = await getDb();
+  const [existing] = await db.select<ProjectRow[]>("SELECT * FROM projects WHERE id = $1", [
+    INBOX_PROJECT_ID,
+  ]);
+  if (existing) return toProject(existing);
+
+  const ts = nowIso();
+  await db.execute(
+    `INSERT INTO projects
+       (id, name, description, parent_id, position, color, emoji, is_archived, completed_at, created_at, updated_at)
+     VALUES ($1,$2,NULL,NULL,$3,NULL,NULL,0,NULL,$4,$5)`,
+    [INBOX_PROJECT_ID, "Inbox", -1, ts, ts],
+  );
+  const [created] = await db.select<ProjectRow[]>("SELECT * FROM projects WHERE id = $1", [
+    INBOX_PROJECT_ID,
+  ]);
+  return toProject(created);
 }
 
 export async function renameProject(id: string, name: string): Promise<void> {
@@ -307,6 +335,7 @@ export async function createTask(input: {
   importance?: number;
   urgency?: number;
 }): Promise<Task> {
+  const title = requireText("task title", input.title);
   assertPriorityLevel("importance", input.importance ?? 0);
   assertPriorityLevel("urgency", input.urgency ?? 0);
   const db = await getDb();
@@ -316,7 +345,7 @@ export async function createTask(input: {
     projectId: input.projectId,
     sectionId: input.sectionId ?? null,
     parentId: input.parentId ?? null,
-    title: input.title,
+    title,
     description: input.description ?? null,
     status: "open",
     importance: input.importance ?? 0,

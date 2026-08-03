@@ -1,31 +1,42 @@
-# Fix list
+# Fixes and improvements
 
-Things in plannea that do **not** work properly and should be fixed: bugs, broken or half-working behavior, rough edges, and small annoyances noticed while using the app. This is the place to write a problem down the moment it is spotted, so it is not lost and does not have to be remembered.
+Two kinds of thing live here, because the line between them is thin and not worth arguing about:
 
-**This file is only for things that are WRONG.** New ideas and wishes go to [FEATURES.md](FEATURES.md) and [ROADMAP.md](ROADMAP.md); what is being built right now lives in `handoff.md`.
+- **Fixes** — something is wrong: it breaks, it does not save, it behaves differently from what was agreed, it looks broken.
+- **Improvements** — something already exists and works, but it should work better: clearer wording, a nicer layout, fewer clicks, one more field in a form that is already there.
 
-## Fix or new feature?
+This is the place to write either of them down the moment it is noticed, so it is not lost and does not have to be remembered.
 
-The line is thin, so one question settles it: **does it already do what we decided it should?**
+## This file vs the feature list
 
-- It does, but you want it to do MORE → **new feature** → FEATURES + ROADMAP. Example: the "new project" dialog asks only for a name, which is exactly what was decided; adding a description, colour or emoji field is a feature, not a fix.
-- It does NOT — it behaves differently from what was agreed, or plainly wrong (something breaks, disappears, does not save, looks broken) → **fix** → this file.
-- Grey case: it works as agreed, but using it feels wrong. Then the SIZE decides. A small, obvious correction with no new decisions behind it (a label that reads badly, a spacing that looks off, a button in an awkward place) is a fix. If it needs a real decision or new design, it belongs in the roadmap instead.
-- When in doubt, write it here anyway. Moving a line from this file to the roadmap costs nothing; forgetting the problem costs more.
+[FEATURES.md](FEATURES.md) is for **things the app has to have** — capabilities that do not exist yet at all. This file is for **what already exists**: making it correct, or making it better.
+
+The question that separates them: **does the app already do this thing in some form?**
+
+- No, it does not exist at all → **feature** → FEATURES + ROADMAP. Examples: a calendar view, habit tracking, subtasks, reminders.
+- Yes, it exists, but it is wrong → **fix** → this file. Examples: a task saves under the wrong day; the list stops refreshing after a restart.
+- Yes, it exists, but it should be better → **improvement** → this file. Examples: the "new project" dialog only asks for a name and should also accept a description or a colour; a heading is confusing; a button sits in an awkward place.
+
+Two extra rules:
+
+- If an improvement turns out to need real design work — new decisions, a new data model, several sessions — it stops being an improvement and moves to the roadmap. The line here is then deleted with a note saying where it went.
+- When in doubt, write it here anyway. Moving a line to the roadmap later costs nothing; forgetting it costs more.
+
+What is being built right now does not belong here — that lives in `handoff.md`.
 
 ## How to use it
 
-- Add one line per problem, as an unchecked box: `- [ ] (YYYY-MM-DD) what is wrong — where it happens, and how to see it.`
-- Write it in plain language, as you would say it out loud. A problem written badly still beats a problem not written down.
+- Add one line per item, as an unchecked box: `- [ ] (YYYY-MM-DD) what is wrong or what should be better — where it happens.`
+- Mark improvements with the word "improve" so the two kinds stay easy to tell apart at a glance.
+- Write it in plain language, as you would say it out loud. Something written badly still beats something not written down.
 - Write items one at a time, whenever something is noticed — the list is meant to grow slowly, not to be filled in one sitting.
-- When it is fixed, tick the box and add the date and, if useful, a few words on the fix: `- [x] (fixed YYYY-MM-DD) …`.
-- Fixed items stay here as a record. When the list gets long, old ticked items can be deleted in a docs sweep.
-- Anything here that turns out to need real design work (not just a fix) moves to the roadmap instead, and the line here is deleted with a note saying where it went.
+- When it is done, tick the box and add the date, plus a few words if useful: `- [x] (done YYYY-MM-DD) …`.
+- Done items stay here as a record. When the list gets long, old ticked ones can be deleted in a docs sweep.
 
 ## Open
 
 _Nothing open right now._
 
-## Fixed
+## Done
 
-_Nothing fixed yet._
+_Nothing done yet._

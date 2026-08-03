@@ -565,7 +565,7 @@ button {
   cursor: default;
 }
 
-/* "+ add task" ghost row (placeholder) */
+/* "+ add task" ghost row — opens the typing row below */
 .add-task {
   display: flex;
   align-items: center;
@@ -576,8 +576,65 @@ button {
   color: var(--text-faint);
   padding: 4px 10px;
   border-radius: var(--radius-sm);
-  cursor: default;
+  cursor: pointer;
   font-size: 14px;
+  text-align: left;
+}
+
+.add-task:hover {
+  background: var(--hover);
+  color: var(--text-dim);
+}
+
+.add-task:focus-visible {
+  outline: none;
+  background: var(--hover);
+  color: var(--text-dim);
+}
+
+/* the same row, mid-typing — sits exactly where the new task will appear */
+.add-task-form {
+  padding: 2px 10px;
+}
+
+.add-task-form__input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 6px 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.add-task-form__input::placeholder {
+  color: var(--text-faint);
+}
+
+.add-task-form__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.add-task-form__error {
+  margin: 4px 0 0;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #dc2626;
+}
+
+:root[data-theme="dark"] .add-task-form__error {
+  color: #f87171;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .add-task-form__input {
+    transition: none;
+  }
 }
 
 .add-task__plus {

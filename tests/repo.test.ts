@@ -11,6 +11,7 @@ import {
   deleteProject,
   deleteSection,
   deleteTask,
+  ensureInboxProject,
   listCompletedProjects,
   listProjects,
   listSections,
@@ -156,11 +157,50 @@ describe("projects", () => {
   });
 });
 
+// The Inbox is where a task goes when it doesn't belong to a project of its own
+// (decided with the user 2026-08-03). It is an ordinary project with a fixed id,
+// so nothing else in the schema had to change.
+describe("the inbox project", () => {
+  it("is created once and sits above the user's own projects", async () => {
+    const inbox = await ensureInboxProject();
+    expect(inbox.name).toBe("Inbox");
+
+    const again = await ensureInboxProject();
+    expect(again.id).toBe(inbox.id);
+    expect(await countAllProjects()).toBe(1); // no twin
+
+    await createProject({ name: "Work" });
+    expect((await listProjects()).map((p) => p.name)).toEqual(["Inbox", "Work"]);
+  });
+
+  it("a renamed inbox stays the inbox", async () => {
+    const inbox = await ensureInboxProject();
+    await renameProject(inbox.id, "Catch-all");
+
+    const again = await ensureInboxProject();
+    expect(again.name).toBe("Catch-all");
+    expect(await countAllProjects()).toBe(1);
+  });
+});
+
 describe("tasks", () => {
   let projectId: string;
 
   beforeEach(async () => {
     projectId = (await createProject({ name: "Test project" })).id;
+  });
+
+  it("saves the task title without its surrounding spaces", async () => {
+    await createTask({ projectId, title: "  Buy milk  " });
+
+    expect((await listTasks(projectId)).map((t) => t.title)).toEqual(["Buy milk"]);
+  });
+
+  it("refuses a task with no real title", async () => {
+    await expect(createTask({ projectId, title: "" })).rejects.toThrow();
+    await expect(createTask({ projectId, title: "   " })).rejects.toThrow();
+
+    expect(await listTasks(projectId)).toEqual([]);
   });
 
   it("a fresh task starts clean: open, zero priority, no dates, at the end of the list", async () => {
