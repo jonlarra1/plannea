@@ -5,8 +5,16 @@ import { groupTasksBySection } from "../core/groupBySection";
 import { findReorderSwap } from "../core/reorder";
 import { sortTasks, type TaskSortMode } from "../core/sortTasks";
 import type { Project, Section, Task } from "../core/types";
-import { listProjects, listSections, listTasks, setTaskStatus, swapTaskPositions } from "../data/repo";
+import {
+  createProject,
+  listProjects,
+  listSections,
+  listTasks,
+  setTaskStatus,
+  swapTaskPositions,
+} from "../data/repo";
 import { seedWelcomeProjectIfEmpty } from "../data/seed";
+import { NewProjectDialog } from "../components/NewProjectDialog";
 import { Sidebar } from "../components/Sidebar";
 import { MainView, type RenderGroup } from "../components/MainView";
 import type { PriorityTag } from "../components/TaskItem";
@@ -76,6 +84,7 @@ export function App() {
   // project view ignores this — it stays in stored manual order (see below).
   const [sortMode, setSortMode] = useState<TaskSortMode>("urgency");
   const [showCompleted, setShowCompleted] = useState<boolean>(loadShowCompleted);
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
 
   // Follow the OS while it changes (only matters for the "system" choice, but
   // keeping it always on means switching to system paints the right theme at once).
@@ -231,6 +240,23 @@ export function App() {
     }
   }
 
+  // Create a project and re-read the list from the DB (source of truth). The
+  // current view is deliberately left alone (user decision, 2026-08-03): the
+  // new project just appears in the sidebar. Errors are rethrown so the dialog
+  // can stay open with what was typed.
+  async function handleCreateProject(name: string): Promise<void> {
+    try {
+      await createProject({ name });
+      const loaded = await listProjects();
+      setProjects(loaded);
+      await reloadData(loaded);
+    } catch (err) {
+      void logError(`failed to create project: ${String(err)}`);
+      throw err;
+    }
+    setNewProjectOpen(false);
+  }
+
   async function handleMove(
     dayTasks: Task[],
     taskId: string,
@@ -285,6 +311,7 @@ export function App() {
         themeChoice={themeChoice}
         onSelectPage={(page) => setView({ kind: "page", page })}
         onSelectProject={(projectId) => setView({ kind: "project", projectId })}
+        onNewProject={() => setNewProjectOpen(true)}
         onCycleTheme={() => setThemeChoice(nextChoice)}
       />
       <MainView
@@ -307,6 +334,12 @@ export function App() {
         onToggle={(taskId) => void handleToggle(taskId)}
         onMove={(dayTasks, taskId, direction) => void handleMove(dayTasks, taskId, direction)}
       />
+      {newProjectOpen && (
+        <NewProjectDialog
+          onCreate={handleCreateProject}
+          onCancel={() => setNewProjectOpen(false)}
+        />
+      )}
     </div>
   );
 }

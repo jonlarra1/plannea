@@ -9,6 +9,7 @@ interface SidebarProps {
   themeChoice: ThemeChoice;
   onSelectPage: (page: Page) => void;
   onSelectProject: (id: string) => void;
+  onNewProject: () => void;
   onCycleTheme: () => void;
 }
 
@@ -27,6 +28,7 @@ export function Sidebar({
   themeChoice,
   onSelectPage,
   onSelectProject,
+  onNewProject,
   onCycleTheme,
 }: SidebarProps) {
   const pageActive = (page: Page) => view.kind === "page" && view.page === page;
@@ -70,8 +72,7 @@ export function Sidebar({
             {project.name}
           </button>
         ))}
-        {/* inactive placeholder — creating projects comes in roadmap 2.5 */}
-        <button className="nav-item nav-item--placeholder nav-add" title="New project — coming soon">
+        <button className="nav-item nav-add" onClick={onNewProject} title="New project">
           <span className="add-task__plus">+</span> new project
         </button>
       </div>

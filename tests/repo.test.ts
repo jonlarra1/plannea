@@ -55,6 +55,20 @@ describe("projects", () => {
     expect(projects.map((p) => p.name)).toEqual(["First", "Second"]);
   });
 
+  it("saves the project name without its surrounding spaces", async () => {
+    await createProject({ name: "  Groceries  " });
+
+    expect((await listProjects()).map((p) => p.name)).toEqual(["Groceries"]);
+  });
+
+  it("refuses a project with no real name", async () => {
+    await expect(createProject({ name: "" })).rejects.toThrow();
+    await expect(createProject({ name: "   " })).rejects.toThrow();
+
+    // nothing was written
+    expect(await countAllProjects()).toBe(0);
+  });
+
   it("counts every project regardless of state (for the first-run seed guard)", async () => {
     expect(await countAllProjects()).toBe(0);
 

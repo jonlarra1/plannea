@@ -20,6 +20,16 @@ function assertPriorityLevel(name: "importance" | "urgency", value: number): voi
   }
 }
 
+// A project must have a real name. The dialog already blocks an empty field, so
+// a blank name arriving here means a bug in calling code (or, later, an agent
+// through the MCP module) — refuse it instead of storing a nameless row.
+// Returns the trimmed name, which is what gets stored.
+function requireName(name: string): string {
+  const trimmed = name.trim();
+  if (trimmed === "") throw new Error("project name cannot be empty");
+  return trimmed;
+}
+
 // next position at the end of a group (scopeCol IS scopeVal is null-safe)
 async function nextPosition(
   table: "projects" | "sections" | "tasks",
@@ -150,11 +160,12 @@ export async function createProject(input: {
   description?: string | null;
   parentId?: string | null;
 }): Promise<Project> {
+  const name = requireName(input.name);
   const db = await getDb();
   const ts = nowIso();
   const project: Project = {
     id: newId(),
-    name: input.name,
+    name,
     description: input.description ?? null,
     parentId: input.parentId ?? null,
     position: await nextPosition("projects", "parent_id", input.parentId ?? null),

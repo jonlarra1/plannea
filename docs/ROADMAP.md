@@ -89,7 +89,7 @@ Redesigning the app's look and structure using the installed design skills (`fro
 
 #### 2.5 New CRUD, one slice per commit (repo/core test first if logic is added, then UI)
 
-- [ ] Create project (sidebar).
+- [x] Create project (sidebar) — DONE 2026-08-03. The "+ new project" row opens a small themed modal (`NewProjectDialog.tsx`) with a name field: Enter or Create saves, Escape / Cancel / a click outside closes, and Create stays disabled while the field is blank. Rules agreed with the user: the name is trimmed, blanks create nothing, duplicate names are allowed, the project lands at the end of the list, and the view does NOT jump to it — it simply appears in the sidebar. Data-layer guard added test-first (2 specs, 65 green): `createProject` now trims the name and throws on a blank one, so no caller — including the future MCP module — can store a nameless project.
 - [ ] Add task (within a day/project).
 - [ ] Rename task (inline edit).
 - [ ] Delete task.
