@@ -35,7 +35,8 @@ What is being built right now does not belong here — that lives in `handoff.md
 
 ## Open
 
-_Nothing open right now._
+- [ ] (2026-08-03) improve — the dropdown menus repeat each other's styling. `.sort-menu__list` / `.sort-menu__option` and `.task-menu__list` / `.task-menu__option` say almost the same thing in `styles.css`; a shared pair of classes would keep them from drifting apart. Left as it is on purpose, to avoid touching the sort menu's verified look in the middle of another slice.
+- [ ] (2026-08-03) improve — `renameProject` accepts a blank name, while `createProject`, `createTask` and `renameTask` all refuse one. Nothing in the app calls it yet, so nothing is broken today; it should get the same `requireText` guard (and its spec) when the rename-project slice is built.
 
 ## Done
 
