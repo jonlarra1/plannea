@@ -16,6 +16,7 @@ interface TaskGroupViewProps {
   tagFor: (task: Task) => PriorityTag | null;
   onToggle: (taskId: string) => void;
   onMove: (taskId: string, direction: "up" | "down") => void;
+  onRename: (taskId: string, title: string) => Promise<void>;
   // given only where adding belongs INSIDE the group — i.e. a project's
   // sections. The date pages carry a single add row at the end instead.
   onAddTask?: (title: string) => Promise<void>;
@@ -32,6 +33,7 @@ export function TaskGroupView({
   tagFor,
   onToggle,
   onMove,
+  onRename,
   onAddTask,
 }: TaskGroupViewProps) {
   return (
@@ -56,6 +58,7 @@ export function TaskGroupView({
             onToggle={() => onToggle(task.id)}
             onMoveUp={() => onMove(task.id, "up")}
             onMoveDown={() => onMove(task.id, "down")}
+            onRename={(title) => onRename(task.id, title)}
           />
         ))}
         {onAddTask && <AddTaskRow onAdd={onAddTask} />}

@@ -260,6 +260,17 @@ describe("tasks", () => {
     expect(reloaded.createdAt).toBe(task.createdAt);
   });
 
+  it("a renamed task keeps its title trimmed, and a blank rename is refused", async () => {
+    const task = await createTask({ projectId, title: "Old title" });
+
+    await renameTask(task.id, "  Newer title  ");
+    expect((await listTasks(projectId))[0].title).toBe("Newer title");
+
+    // emptying the field must never leave a nameless task
+    await expect(renameTask(task.id, "   ")).rejects.toThrow();
+    expect((await listTasks(projectId))[0].title).toBe("Newer title");
+  });
+
   it("the description can be added, changed, and removed", async () => {
     const task = await createTask({ projectId, title: "T" });
 

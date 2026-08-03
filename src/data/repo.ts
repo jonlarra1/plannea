@@ -395,9 +395,10 @@ export async function setTaskStatus(id: string, status: TaskStatus): Promise<voi
 }
 
 export async function renameTask(id: string, title: string): Promise<void> {
+  const clean = requireText("task title", title);
   const db = await getDb();
   await db.execute("UPDATE tasks SET title = $1, updated_at = $2 WHERE id = $3", [
-    title,
+    clean,
     nowIso(),
     id,
   ]);

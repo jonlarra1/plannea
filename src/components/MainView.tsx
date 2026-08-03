@@ -42,6 +42,7 @@ interface MainViewProps {
   onAddTask: (title: string, sectionId: string | null) => Promise<void>;
   onToggle: (taskId: string) => void;
   onMove: (dayTasks: Task[], taskId: string, direction: "up" | "down") => void;
+  onRename: (taskId: string, title: string) => Promise<void>;
 }
 
 export function MainView({
@@ -65,6 +66,7 @@ export function MainView({
   onAddTask,
   onToggle,
   onMove,
+  onRename,
 }: MainViewProps) {
   return (
     <main className="main">
@@ -107,6 +109,7 @@ export function MainView({
               tagFor={tagFor}
               onToggle={onToggle}
               onMove={(taskId, direction) => onMove(group.tasks, taskId, direction)}
+              onRename={onRename}
               onAddTask={
                 addTaskInGroups
                   ? (title) => onAddTask(title, group.sectionId ?? null)

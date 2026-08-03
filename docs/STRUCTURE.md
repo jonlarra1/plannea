@@ -33,9 +33,10 @@ Integration extension (`hediet.vscode-drawio`), or at
 │   │   ├── MainView.tsx         # main pane: page header + list of task groups
 │   │   ├── NewProjectDialog.tsx # modal for naming a new project (own element, so it follows the app theme)
 │   │   ├── SortMenu.tsx         # custom sort dropdown for the date pages (theme-following; native select can't be on WebKitGTK)
-│   │   ├── TaskGroupView.tsx    # one group (day OR section) heading + tasks (+ "add task" placeholder)
+│   │   ├── TaskGroupView.tsx    # one group (day OR section) heading + tasks (+ the "add task" row)
+│   │   ├── TaskMenu.tsx         # the "⋯" menu on a task row (Rename today; more actions later)
 │   │   ├── Sidebar.tsx          # page-based nav (Pages + Projects groups) + theme toggle
-│   │   └── TaskItem.tsx         # one task row (checkbox, up/down, "⋯" placeholder, color-by-level priority tag)
+│   │   └── TaskItem.tsx         # one task row (checkbox, inline rename, up/down, "⋯" menu, color-by-level priority tag)
 │   ├── core/                    # pure logic, no React/Tauri
 │   │   ├── addTask.ts           # where a new task belongs (project/section/date) + where the add row appears
 │   │   ├── frontmatter.ts       # YAML frontmatter split/join (legacy markdown path)

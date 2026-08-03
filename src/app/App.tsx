@@ -14,6 +14,7 @@ import {
   listProjects,
   listSections,
   listTasks,
+  renameTask,
   setTaskStatus,
   swapTaskPositions,
 } from "../data/repo";
@@ -283,6 +284,16 @@ export function App() {
     }
   }
 
+  async function handleRenameTask(taskId: string, title: string): Promise<void> {
+    try {
+      await renameTask(taskId, title);
+      await reloadData(projects);
+    } catch (err) {
+      void logError(`failed to rename task ${taskId}: ${String(err)}`);
+      throw err; // the row keeps the edit open with what was typed
+    }
+  }
+
   async function handleMove(
     dayTasks: Task[],
     taskId: string,
@@ -364,6 +375,7 @@ export function App() {
         addTaskAtEnd={addRow === "at-end"}
         onAddTask={handleAddTask}
         onToggle={(taskId) => void handleToggle(taskId)}
+        onRename={handleRenameTask}
         onMove={(dayTasks, taskId, direction) => void handleMove(dayTasks, taskId, direction)}
       />
       {newProjectOpen && (
